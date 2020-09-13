@@ -16,6 +16,13 @@ function lint(files) {
 
 const lintStagedConfig = {
   '*': (stagedFiles) => {
+    const jsFilesInPackages = mm(stagedFiles, [
+      '**/@(@serverlessly|packages)/**/*.js',
+    ]);
+    if (jsFilesInPackages.length) {
+      return `node -e "throw 'Javascript files are not allowed. Convert them to Typescript files.'"`;
+    }
+
     const codeFiles = mm(stagedFiles, ['*.ts', '*.js'], {
       dot: true,
       matchBase: true,

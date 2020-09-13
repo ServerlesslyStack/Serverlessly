@@ -1,5 +1,8 @@
 const commitlintConfig = {
-  extends: ['@commitlint/config-conventional'],
+  extends: [
+    '@commitlint/config-conventional',
+    '@commitlint/config-lerna-scopes',
+  ],
   rules: {
     'type-enum': [
       2,
