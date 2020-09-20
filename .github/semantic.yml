@@ -1,0 +1,17 @@
+titleOnly: true
+allowMergeCommits: true
+types:
+  - chore
+  - devops
+  - docs
+  - env
+  - feat
+  - fix
+  - lint
+  - perf
+  - refactor
+  - repo
+  - revert
+  - test
+scopes:
+  - core
