@@ -4,12 +4,14 @@
   "license": "MIT",
   "scripts": {
     "bootstrap": "yarn && yarn fix-husky",
+    "ci": "yarn install --frozen-lockfile",
     "fix-husky": "ts-node ./scripts/fix-husky.ts",
     "repair": "yarn --check-files && yarn fix-husky",
     "list-packages": "yarn workspaces info && lerna ls",
     "ls": "yarn list-packages",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "format-check": "prettier --check .",
     "test": "jest"
   },
   "devDependencies": {
