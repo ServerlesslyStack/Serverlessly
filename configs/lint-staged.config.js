@@ -22,6 +22,13 @@ function updateSemanticConfig() {
   ];
 }
 
+function updateLabelerConfig() {
+  return [
+    `ts-node ${path.join(__dirname, '../scripts/update-labeler.ts')}`,
+    `git add ${path.join(__dirname, '../.github/labeler.yml')}`,
+  ];
+}
+
 const lintStagedConfig = (stagedFiles) => {
   const jsFilesInPackages = mm(stagedFiles, [
     '**/@(@serverlessly|packages)/**/*.js',
@@ -35,6 +42,11 @@ const lintStagedConfig = (stagedFiles) => {
     return `node -e "throw 'Editing semantic.yml file manually is not allowed. Update scripts/update-semantic.ts file instead.'"`;
   }
 
+  const labelerConfig = mm(stagedFiles, ['**/.github/labeler.yml']);
+  if (labelerConfig.length) {
+    return `node -e "throw 'Editing .github/labeler.yml file manually is not allowed. Update scripts/update-labeler.ts file instead.'"`;
+  }
+
   const codeFiles = mm(stagedFiles, ['*.ts', '*.js'], {
     dot: true,
     matchBase: true,
@@ -46,6 +58,7 @@ const lintStagedConfig = (stagedFiles) => {
     format([...codeFiles, ...jsonFiles, ...docsFiles]),
     lint(codeFiles),
     ...updateSemanticConfig(),
+    ...updateLabelerConfig(),
   ];
 };
 

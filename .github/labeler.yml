@@ -1,0 +1,2 @@
+'@serverlessly/core':
+  - '@serverlessly/core/**/*'
