@@ -51,11 +51,14 @@ const lintStagedConfig = (stagedFiles) => {
     dot: true,
     matchBase: true,
   });
-  const jsonFiles = mm(stagedFiles, ['**/*.json']);
+  const configFiles = mm(stagedFiles, ['*.json', '*.yml', '*.yaml'], {
+    dot: true,
+    matchBase: true,
+  });
   const docsFiles = mm(stagedFiles, ['**/*.md']);
 
   return [
-    format([...codeFiles, ...jsonFiles, ...docsFiles]),
+    format([...codeFiles, ...configFiles, ...docsFiles]),
     lint(codeFiles),
     ...updateSemanticConfig(),
     ...updateLabelerConfig(),
