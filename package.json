@@ -12,7 +12,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format-check": "prettier --check .",
-    "test": "jest"
+    "test": "jest",
+    "test-ci": "jest --collectCoverage=false",
+    "coverage-ci": "jest --coverageThreshold={}"
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",
