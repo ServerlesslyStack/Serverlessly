@@ -40,6 +40,6 @@ Run the following command & make sure that everything checks out okay:
 yarn test && yarn lint && yarn format
 ```
 
-## Commit & Pull Request
+## Pull Request
 
-Commit & Pull Request title should follow [Conventional Commit specification](https://www.conventionalcommits.org/en/v1.0.0/) with one cavet. Serverlessly has different set of types. Types `build`, `ci` and `style` from Conventional Commit specification are missing. If you need to use them, Serverlessly has replacements. For `build` & `ci`, you can use `devops`. For `style`, you can use `lint`. Complete set of types used by Serverlessly can be found [here](./configs/commitlint.config.js).
+Pull Request titles are required to follow `Serverlessly Commit specification` which extends [Conventional Commit specification](https://www.conventionalcommits.org/en/v1.0.0/) and overrides types enum. Types `build` and `ci` from Conventional Commit specification have been removed. If you need to use them, you can use `devops` type. Complete set of types can be found [here](./configs/commitlint.config.js).
