@@ -1,0 +1,336 @@
+pull_request_rules:
+  [
+    {
+      name: Block PR if it is NOT opened against main branch,
+      conditions: [base!=main, label!=blocked],
+      actions:
+        {
+          comment:
+            {
+              message: 'Please, change the base branch to main. Pull Requests against {{base}} branch is not supported.',
+            },
+          label: { add: [blocked] },
+        },
+    },
+    {
+      name: Unblock PR if it is NOT opened against main branch,
+      conditions: [base=main, label=blocked],
+      actions: { label: { remove: [blocked] } },
+    },
+    {
+      name: Add work-in-progress label,
+      conditions: [status-failure=WIP, label!=work-in-progress, -closed],
+      actions: { label: { add: [work-in-progress] } },
+    },
+    {
+      name: Remove work-in-progress label,
+      conditions: [status-success=WIP, label=work-in-progress],
+      actions: { label: { remove: [work-in-progress] } },
+    },
+    {
+      name: Add pr-title-issue label,
+      conditions:
+        [status-failure=Semantic Pull Request, -closed, label!=pr-title-issue],
+      actions: { label: { add: [pr-title-issue] } },
+    },
+    {
+      name: Remove pr-title-issue label,
+      conditions: [status-success=Semantic Pull Request, label=pr-title-issue],
+      actions: { label: { remove: [pr-title-issue] } },
+    },
+    {
+      name: Request author to change PR title,
+      conditions: [label=pr-title-issue, -closed],
+      actions:
+        {
+          comment:
+            {
+              message: 'Pull Request title `{{title}}` does not follow the guidelines of [Serverlessly Commit specification](https://github.com/ServerlesslyStack/Serverlessly/blob/main/CONTRIBUTING.md#pull-request). Please, update it.',
+            },
+        },
+    },
+    {
+      name: Add merge-conflict label,
+      conditions: [conflict, -closed, -merged, label!=merge-conflict],
+      actions: { label: { add: [merge-conflict] } },
+    },
+    {
+      name: Remove merge-conflict label,
+      conditions: [-conflict, label=pr-title-issue],
+      actions: { label: { remove: [pr-title-issue] } },
+    },
+    {
+      name: Request author to resolve conflict,
+      conditions: [label=merge-conflict, -closed],
+      actions:
+        {
+          comment:
+            {
+              message: 'This Pull Request is in conflict with the {{base}} branch. Please, resolve conflict either by merging {{base}} into your {{head}} branch or rebasing your {{head}} onto {{base}} branch.',
+            },
+        },
+    },
+    {
+      name: Add code-style-issue label,
+      conditions:
+        [status-failure~=(Lint|Format Check), -closed, label!=code-style-issue],
+      actions: { label: { add: [code-style-issue] } },
+    },
+    {
+      name: Remove code-style-issue label,
+      conditions:
+        [
+          status-success=Lint,
+          status-success=Format Check,
+          label=code-style-issue,
+        ],
+      actions: { label: { remove: [code-style-issue] } },
+    },
+    {
+      name: Request author to fix style issue,
+      conditions: [label=code-style-issue, -closed],
+      actions:
+        {
+          comment:
+            {
+              message: 'Please, fix code style issues. Run `yarn lint && yarn format-check` for assistance',
+            },
+        },
+    },
+    {
+      name: Add code-quality-issue label,
+      conditions:
+        [status-failure=codeclimate, -closed, label!=code-quality-issue],
+      actions: { label: { add: [code-quality-issue] } },
+    },
+    {
+      name: Remove code-quality-issue label,
+      conditions:
+        [
+          status-success=codeclimate,
+          status-success=Format Check,
+          label=code-quality-issue,
+        ],
+      actions: { label: { remove: [code-quality-issue] } },
+    },
+    {
+      name: Add critical-package label,
+      conditions: [label~=(@serverlessly/core), -closed],
+      actions: { label: { add: [critical-package] } },
+    },
+    {
+      name: Add untested-code label,
+      conditions:
+        [
+          status-failure=codeclimate/diff-coverage,
+          -closed,
+          label!=untested-code,
+        ],
+      actions: { label: { add: [untested-code] } },
+    },
+    {
+      name: Remove untested-code label,
+      conditions:
+        [status-success=codeclimate/diff-coverage, label=untested-code],
+      actions: { label: { remove: [untested-code] } },
+    },
+    {
+      name: Add test-failed label,
+      conditions:
+        [
+          status-failure~=(Test on ubuntu-latest with node.js v10|Test on ubuntu-latest with node.js v12|Test on ubuntu-latest with node.js v14|Test on macos-latest with node.js v10|Test on macos-latest with node.js v12|Test on macos-latest with node.js v14|Test on windows-latest with node.js v10|Test on windows-latest with node.js v12|Test on windows-latest with node.js v14),
+          -closed,
+          label!=test-failed,
+        ],
+      actions: { label: { add: [test-failed] } },
+    },
+    {
+      name: Remove test-failed label,
+      conditions:
+        [
+          status-success=Test on ubuntu-latest with node.js v10,
+          status-success=Test on ubuntu-latest with node.js v12,
+          status-success=Test on ubuntu-latest with node.js v14,
+          status-success=Test on macos-latest with node.js v10,
+          status-success=Test on macos-latest with node.js v12,
+          status-success=Test on macos-latest with node.js v14,
+          status-success=Test on windows-latest with node.js v10,
+          status-success=Test on windows-latest with node.js v12,
+          status-success=Test on windows-latest with node.js v14,
+          label=test-failed,
+        ],
+      actions: { label: { remove: [test-failed] } },
+    },
+    {
+      name: Remove outdated reviews,
+      conditions: [base=main, -merged, -closed],
+      actions: { dismiss_reviews: { approved: true, changes_requested: true } },
+    },
+    {
+      name: Add approved label,
+      conditions:
+        [author!=SachinShekhar, '#approved-reviews-by>=2', label!=approved],
+      actions: { label: { add: [approved] } },
+    },
+    {
+      name: Add owner-approved label,
+      conditions:
+        [
+          author!=SachinShekhar,
+          approved-reviews-by=SachinShekhar,
+          label!=owner-approved,
+        ],
+      actions: { label: { add: [owner-approved] } },
+    },
+    {
+      name: Remove approved label,
+      conditions: ['#approved-reviews-by<2', label=approved],
+      actions: { label: { remove: [approved] } },
+    },
+    {
+      name: Remove owner-approved label,
+      conditions: [approved-reviews-by!=SachinShekhar, label=owner-approved],
+      actions: { label: { remove: [owner-approved] } },
+    },
+    {
+      name: Add author-is-owner label,
+      conditions: [author=SachinShekhar, label!=author-is-owner],
+      actions: { label: { add: [author-is-owner] } },
+    },
+    {
+      name: Add revision-needed label,
+      conditions: ['#changes-requested-reviews-by>0'],
+      actions: { label: { add: [revision-needed] } },
+    },
+    {
+      name: Remove revision-needed label,
+      conditions: ['#changes-requested-reviews-by=0'],
+      actions: { label: { remove: [revision-needed] } },
+    },
+    {
+      name: Add ready-to-merge label,
+      conditions:
+        [
+          -label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|code-quality-issue|code-style-issue|blocked),
+          label~=(approved|owner-approved|author-is-owner),
+          -closed,
+          -merged,
+          label!=ready-to-merge,
+        ],
+      actions: { label: { add: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label,
+      conditions:
+        [
+          label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|code-quality-issue|code-style-issue|blocked),
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when PR is not in approved state,
+      conditions:
+        [
+          -label~=(approved|owner-approved|author-is-owner),
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label if PR gets closed,
+      conditions: [closed, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label if PR gets merged,
+      conditions: [merged, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Request author to remove WIP word from title for PR merge,
+      conditions:
+        [label=ready-to-merge, label=work-in-progress, 'title~=(?i)wip'],
+      actions:
+        {
+          comment:
+            {
+              message: 'This Pull Request is ready to be merged. To proceed with the merge, remove `WIP` word from the Pull Request title.',
+            },
+        },
+    },
+    {
+      name: Request author to remove Work In Progress word from title for PR merge,
+      conditions:
+        [
+          label=ready-to-merge,
+          label=work-in-progress,
+          'title~=(?i)work in progress',
+        ],
+      actions:
+        {
+          comment:
+            {
+              message: 'This Pull Request is ready to be merged. To proceed with the merge, remove `Work in Progress` word from the Pull Request title.',
+            },
+        },
+    },
+    {
+      name: Request author to remove construction emoji from title for PR merge,
+      conditions:
+        [
+          label=ready-to-merge,
+          label=work-in-progress,
+          '-title~=(?i)wip',
+          '-title~=(?i)work in progress',
+        ],
+      actions:
+        {
+          comment:
+            {
+              message: 'This Pull Request is ready to be merged. To proceed with the merge, remove :construction: emoji from the Pull Request title.',
+            },
+        },
+    },
+    {
+      name: Automatic merge,
+      conditions:
+        [
+          author!=SachinShekhar,
+          label=ready-to-merge,
+          label!=work-in-progress,
+          -closed,
+        ],
+      actions:
+        {
+          merge: { method: squash, strict: smart, strict_method: merge },
+          label: { add: [auto-merged] },
+        },
+    },
+    {
+      name: Automatic merge PR of @SachinShekhar,
+      conditions:
+        [
+          author=SachinShekhar,
+          label=ready-to-merge,
+          label!=work-in-progress,
+          -closed,
+        ],
+      actions:
+        {
+          merge: { method: merge, strict: smart, strict_method: merge },
+          label: { add: [auto-merged] },
+        },
+    },
+    {
+      name: Thank on successful merge,
+      conditions: [author!=SachinShekhar, merged],
+      actions:
+        {
+          comment:
+            {
+              message: 'Thanks for your contribution. These changes will be included in the next release cycle. Keep an eye on [releases page](https://github.com/ServerlesslyStack/Serverlessly/releases).',
+            },
+        },
+    },
+  ]
