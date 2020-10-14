@@ -1,5 +1,11 @@
 ![Serverlessly Logo](./assets/logo.png)
 
-Serverlessly allows you to write _vendor-agnostic_ serverless functions which you can run on any FaaS like AWS Lambda, Azure Functions etc. And, if your needs change in the future, Serverlessly can also run these functions in your own infrastructure at scale (Auto-scaling EC2, Kubernetes etc). Serverlessly also ships with an elegant and natural stream-based middleware system which makes the coding bliss. And, until Serverlessly's middleware ecosystem is ready, you can use middleware adapters to use existing middleware ecosystems of other web frameworks (Koa, Express etc).
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ServerlesslyStack/Serverlessly/Matrix%20Test?label=matrix%20test&logo=GitHub%20Actions&logoColor=%23FFF)](https://github.com/ServerlesslyStack/Serverlessly/actions?query=workflow%3A%22Matrix+Test%22) [![Test Coverage](https://api.codeclimate.com/v1/badges/0e90105dedab44b215c7/test_coverage)](https://codeclimate.com/repos/5f74e15da031507242007101/test_coverage) [![Maintainability](https://api.codeclimate.com/v1/badges/0e90105dedab44b215c7/maintainability)](https://codeclimate.com/repos/5f74e15da031507242007101/maintainability) [![GitHub last commit](https://img.shields.io/github/last-commit/ServerlesslyStack/Serverlessly?logo=github)](https://github.com/ServerlesslyStack/Serverlessly/commits/main) [![Mergify Status](https://img.shields.io/endpoint.svg?url=https://gh.mergify.io/badges/ServerlesslyStack/Serverlessly&style=flat)](https://github.com/ServerlesslyStack/Serverlessly/blob/main/.github/mergify.yml)
 
-**Notice:** Serverlessly is currently in early conception phase with multiple architecture ideas being implemented & tested. No release has been made so far.
+Serverlessly allows you to write _vendor-neutral_ cloud-native microservices which you can run on any FaaS (AWS Lambda, Azure Functions etc) as well as in your own infrastructure at scale (Auto-scaling EC2, Kubernetes etc).
+
+---
+
+:warning: **Notice:** Serverlessly is currently in early conception phase with multiple architecture ideas being implemented & tested. No release has been made so far.
+
+---
