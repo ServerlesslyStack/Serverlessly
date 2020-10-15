@@ -13,6 +13,7 @@ const jestConfig = async () => ({
   collectCoverage: true,
   collectCoverageFrom: [
     '<rootDir>/@(@serverlessly|packages)/**/*.ts',
+    '!<rootDir>/**/__tests__/**',
     '!<rootDir>/**/node_modules/**',
   ],
   coverageThreshold: {
