@@ -7,10 +7,14 @@ import {
 // Dummy Protocol Interfaces
 export type DummyProtocolSync = (prefix: string) => string;
 export type DummyProtocolAsync = (prefix: string) => Promise<string>;
+export type DummyProtocolSyncOrAsync = (
+  prefix: string
+) => string | Promise<string>;
 
 // Dummy Middleware Interfaces
 export type DummyMiddlewareSync = () => string;
 export type DummyMiddlewareAsync = () => Promise<string>;
+export type DummyMiddlewareSyncOrAsync = () => string | Promise<string>;
 
 // Dummy Serverlessly Instances
 export type ServerlesslySync = Serverlessly<
@@ -31,6 +35,21 @@ export type ServerlesslyAsyncToSync = Serverlessly<
   DummyMiddlewareSync
 >;
 
+export type ServerlesslySyncOrAsync = Serverlessly<
+  DummyProtocolSyncOrAsync,
+  DummyMiddlewareSyncOrAsync
+>;
+
+export type ServerlesslySyncOrAsyncToSync = Serverlessly<
+  DummyProtocolSyncOrAsync,
+  DummyMiddlewareSync
+>;
+
+export type ServerlesslySyncOrAsyncToAsync = Serverlessly<
+  DummyProtocolSyncOrAsync,
+  DummyMiddlewareAsync
+>;
+
 // Dummy Middleware Engine Interfaces
 export type DummyMiddlewareEngineSync = MiddlewareEngine<
   DummyProtocolSync,
@@ -48,6 +67,21 @@ export type DummyMiddlewareEngineAsync = MiddlewareEngine<
 export type DummyMiddlewareEngineSyncMiddlewareToAsyncProtocol = MiddlewareEngine<
   DummyProtocolAsync,
   DummyMiddlewareSync
+>;
+
+export type DummyMiddlewareEngineSyncOrAsync = MiddlewareEngine<
+  DummyProtocolSyncOrAsync,
+  DummyMiddlewareSyncOrAsync
+>;
+
+export type DummyMiddlewareEngineSyncWithSyncOrAsyncProtocol = MiddlewareEngine<
+  DummyProtocolSyncOrAsync,
+  DummyMiddlewareSync
+>;
+
+export type DummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol = MiddlewareEngine<
+  DummyProtocolSyncOrAsync,
+  DummyMiddlewareAsync
 >;
 
 // Concrete Dummy Middleware Engines
@@ -71,6 +105,35 @@ export const dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol: DummyMiddleware
   middlewares: DummyMiddlewareSync[]
 ) => async (prefix: string) =>
   middlewares.reduce((acc, current) => acc + ' ' + current(), prefix);
+
+export const dummyMiddlewareEngineSyncOrAsync: DummyMiddlewareEngineSyncOrAsync = (
+  middlewares: DummyMiddlewareSyncOrAsync[]
+) => async (prefix: string) =>
+  middlewares.reduce(
+    (promiseChain, current) =>
+      promiseChain.then((chainResult) => {
+        let exec = current();
+        exec = exec instanceof Promise ? exec : Promise.resolve(exec);
+        return exec.then((currentResult) => chainResult + ' ' + currentResult);
+      }),
+    Promise.resolve(prefix)
+  );
+
+export const dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol: DummyMiddlewareEngineSyncWithSyncOrAsyncProtocol = (
+  middlewares: DummyMiddlewareSync[]
+) => (prefix: string) =>
+  middlewares.reduce((acc, current) => acc + ' ' + current(), prefix);
+
+export const dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol: DummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol = (
+  middlewares: DummyMiddlewareAsync[]
+) => async (prefix: string) =>
+  middlewares.reduce(
+    (promiseChain, current) =>
+      promiseChain.then((chainResult) =>
+        current().then((currentResult) => chainResult + ' ' + currentResult)
+      ),
+    Promise.resolve(prefix)
+  );
 
 // Faulty Middleware Engines
 export const faultyMiddlewareEngineSync: DummyMiddlewareEngineSync = (
@@ -106,9 +169,55 @@ export const faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol: DummyMiddlewar
     middlewares.reduce((acc, current) => acc + ' ' + current(), prefix);
 };
 
+export const faultyMiddlewareEngineSyncOrAsync: DummyMiddlewareEngineSyncOrAsync = (
+  middlewares: DummyMiddlewareSyncOrAsync[]
+) => {
+  const array = [];
+  array.length = -1; // Created "RangeError: Invalid array length"
+  return async (prefix: string) =>
+    middlewares.reduce(
+      (promiseChain, current) =>
+        promiseChain.then((chainResult) => {
+          let exec = current();
+          exec = exec instanceof Promise ? exec : Promise.resolve(exec);
+          return exec.then(
+            (currentResult) => chainResult + ' ' + currentResult
+          );
+        }),
+      Promise.resolve(prefix)
+    );
+};
+
+export const faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineSyncWithSyncOrAsyncProtocol = (
+  middlewares: DummyMiddlewareSync[]
+) => {
+  const array = [];
+  array.length = -1; // Created "RangeError: Invalid array length"
+  return (prefix: string) =>
+    middlewares.reduce((acc, current) => acc + ' ' + current(), prefix);
+};
+
+export const faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol = (
+  middlewares: DummyMiddlewareAsync[]
+) => {
+  const array = [];
+  array.length = -1; // Created "RangeError: Invalid array length"
+  return async (prefix: string) =>
+    middlewares.reduce(
+      (promiseChain, current) =>
+        promiseChain.then((chainResult) =>
+          current().then((currentResult) => chainResult + ' ' + currentResult)
+        ),
+      Promise.resolve(prefix)
+    );
+};
+
 // Dummy Handler Interfaces
 export type DummyHandlerSync = (prefix: string) => string;
 export type DummyHandlerAsync = (prefix: string) => Promise<string>;
+export type DummyHandlerSyncOrAsync = (
+  prefix: string
+) => string | Promise<string>;
 
 // Dummy Platform Adapter Interfaces
 export type DummyPlatformAdapterSync = PlatformAdapter<
@@ -129,6 +238,11 @@ export type DummyPlatformAdapterAsyncHandlerToSyncProtocol = PlatformAdapter<
   DummyHandlerAsync
 >;
 
+export type DummyPlatformAdapterSyncOrAsync = PlatformAdapter<
+  DummyProtocolSyncOrAsync,
+  DummyHandlerSyncOrAsync
+>;
+
 // Concrete Dummy Platform Adapters
 export const dummyPlatformAdapterSync: DummyPlatformAdapterSync = (
   protocolHandler: DummyProtocolSync
@@ -141,6 +255,20 @@ export const dummyPlatformAdapterAsync: DummyPlatformAdapterAsync = (
 export const dummyPlatformAdapterAsyncHandlerToSyncProtocol: DummyPlatformAdapterAsyncHandlerToSyncProtocol = (
   protocolHandler: DummyProtocolSync
 ) => async (prefix: string) => protocolHandler(prefix);
+
+export const dummyPlatformAdapterSyncOrAsyncStrict: DummyPlatformAdapterSyncOrAsync = (
+  protocolHandler: DummyProtocolSyncOrAsync
+) =>
+  protocolHandler.constructor.name === 'AsyncFunction'
+    ? async (prefix: string) => await protocolHandler(prefix)
+    : (prefix: string) => protocolHandler(prefix);
+
+export const dummyPlatformAdapterSyncOrAsync: DummyPlatformAdapterSyncOrAsync = (
+  protocolHandler: DummyProtocolSyncOrAsync
+) => async (prefix: string) => {
+  const coreCode = protocolHandler(prefix);
+  return coreCode instanceof Promise ? await coreCode : coreCode;
+};
 
 // Faulty Platform Adapters
 export const faultyPlatformAdapterSync: DummyPlatformAdapterSync = (
@@ -165,4 +293,25 @@ export const faultyPlatformAdapterAsyncHandlerToSyncProtocol: DummyPlatformAdapt
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
   return async (prefix: string) => protocolHandler(prefix);
+};
+
+export const faultyPlatformAdapterSyncOrAsyncStrict: DummyPlatformAdapterSyncOrAsync = (
+  protocolHandler: DummyProtocolSyncOrAsync
+) => {
+  const array = [];
+  array.length = -1; // Created "RangeError: Invalid array length"
+  return protocolHandler.constructor.name === 'AsyncFunction'
+    ? async (prefix: string) => await protocolHandler(prefix)
+    : (prefix: string) => protocolHandler(prefix);
+};
+
+export const faultyPlatformAdapterSyncOrAsync: DummyPlatformAdapterSyncOrAsync = (
+  protocolHandler: DummyProtocolSyncOrAsync
+) => {
+  const array = [];
+  array.length = -1; // Created "RangeError: Invalid array length"
+  return async (prefix: string) => {
+    const coreCode = protocolHandler(prefix);
+    return coreCode instanceof Promise ? await coreCode : coreCode;
+  };
 };
