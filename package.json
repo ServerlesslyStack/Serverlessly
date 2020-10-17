@@ -13,8 +13,8 @@
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "test": "jest",
-    "test-ci": "jest --collectCoverage=false",
-    "coverage-ci": "jest --coverageThreshold={}"
+    "test-ci": "jest --collectCoverage=false --ci --passWithNoTests",
+    "coverage-ci": "jest --coverageThreshold={} --ci --passWithNoTests"
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",

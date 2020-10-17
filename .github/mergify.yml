@@ -121,18 +121,12 @@ pull_request_rules:
     },
     {
       name: Add untested-code label,
-      conditions:
-        [
-          check-failure=codeclimate/diff-coverage,
-          -closed,
-          label!=untested-code,
-        ],
+      conditions: [check-failure=codecov/patch, -closed, label!=untested-code],
       actions: { label: { add: [untested-code] } },
     },
     {
       name: Remove untested-code label,
-      conditions:
-        [check-success=codeclimate/diff-coverage, label=untested-code],
+      conditions: [check-success=codecov/patch, label=untested-code],
       actions: { label: { remove: [untested-code] } },
     },
     {
