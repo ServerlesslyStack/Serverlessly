@@ -19,23 +19,24 @@ pull_request_rules:
     },
     {
       name: Add work-in-progress label,
-      conditions: [status-failure=WIP, label!=work-in-progress, -closed],
+      conditions:
+        [title~=🚧|wip|work in progress, label!=work-in-progress, -closed],
       actions: { label: { add: [work-in-progress] } },
     },
     {
       name: Remove work-in-progress label,
-      conditions: [status-success=WIP, label=work-in-progress],
+      conditions: [check-success=WIP, label=work-in-progress],
       actions: { label: { remove: [work-in-progress] } },
     },
     {
       name: Add pr-title-issue label,
       conditions:
-        [status-failure=Semantic Pull Request, -closed, label!=pr-title-issue],
+        [check-failure=Semantic Pull Request, -closed, label!=pr-title-issue],
       actions: { label: { add: [pr-title-issue] } },
     },
     {
       name: Remove pr-title-issue label,
-      conditions: [status-success=Semantic Pull Request, label=pr-title-issue],
+      conditions: [check-success=Semantic Pull Request, label=pr-title-issue],
       actions: { label: { remove: [pr-title-issue] } },
     },
     {
@@ -73,15 +74,15 @@ pull_request_rules:
     {
       name: Add code-style-issue label,
       conditions:
-        [status-failure~=(Lint|Format Check), -closed, label!=code-style-issue],
+        [check-failure~=(Lint|Format Check), -closed, label!=code-style-issue],
       actions: { label: { add: [code-style-issue] } },
     },
     {
       name: Remove code-style-issue label,
       conditions:
         [
-          status-success=Lint,
-          status-success=Format Check,
+          check-success=Lint,
+          check-success=Format Check,
           label=code-style-issue,
         ],
       actions: { label: { remove: [code-style-issue] } },
@@ -100,15 +101,15 @@ pull_request_rules:
     {
       name: Add code-quality-issue label,
       conditions:
-        [status-failure=codeclimate, -closed, label!=code-quality-issue],
+        [check-failure=codeclimate, -closed, label!=code-quality-issue],
       actions: { label: { add: [code-quality-issue] } },
     },
     {
       name: Remove code-quality-issue label,
       conditions:
         [
-          status-success=codeclimate,
-          status-success=Format Check,
+          check-success=codeclimate,
+          check-success=Format Check,
           label=code-quality-issue,
         ],
       actions: { label: { remove: [code-quality-issue] } },
@@ -122,7 +123,7 @@ pull_request_rules:
       name: Add untested-code label,
       conditions:
         [
-          status-failure=codeclimate/diff-coverage,
+          check-failure=codeclimate/diff-coverage,
           -closed,
           label!=untested-code,
         ],
@@ -131,14 +132,14 @@ pull_request_rules:
     {
       name: Remove untested-code label,
       conditions:
-        [status-success=codeclimate/diff-coverage, label=untested-code],
+        [check-success=codeclimate/diff-coverage, label=untested-code],
       actions: { label: { remove: [untested-code] } },
     },
     {
       name: Add test-failed label,
       conditions:
         [
-          status-failure~=(Test on ubuntu-latest with node.js v10|Test on ubuntu-latest with node.js v12|Test on ubuntu-latest with node.js v14|Test on macos-latest with node.js v10|Test on macos-latest with node.js v12|Test on macos-latest with node.js v14|Test on windows-latest with node.js v10|Test on windows-latest with node.js v12|Test on windows-latest with node.js v14),
+          check-failure~=(Test on ubuntu-latest with node.js v10|Test on ubuntu-latest with node.js v12|Test on ubuntu-latest with node.js v14|Test on macos-latest with node.js v10|Test on macos-latest with node.js v12|Test on macos-latest with node.js v14|Test on windows-latest with node.js v10|Test on windows-latest with node.js v12|Test on windows-latest with node.js v14),
           -closed,
           label!=test-failed,
         ],
@@ -148,15 +149,15 @@ pull_request_rules:
       name: Remove test-failed label,
       conditions:
         [
-          status-success=Test on ubuntu-latest with node.js v10,
-          status-success=Test on ubuntu-latest with node.js v12,
-          status-success=Test on ubuntu-latest with node.js v14,
-          status-success=Test on macos-latest with node.js v10,
-          status-success=Test on macos-latest with node.js v12,
-          status-success=Test on macos-latest with node.js v14,
-          status-success=Test on windows-latest with node.js v10,
-          status-success=Test on windows-latest with node.js v12,
-          status-success=Test on windows-latest with node.js v14,
+          check-success=Test on ubuntu-latest with node.js v10,
+          check-success=Test on ubuntu-latest with node.js v12,
+          check-success=Test on ubuntu-latest with node.js v14,
+          check-success=Test on macos-latest with node.js v10,
+          check-success=Test on macos-latest with node.js v12,
+          check-success=Test on macos-latest with node.js v14,
+          check-success=Test on windows-latest with node.js v10,
+          check-success=Test on windows-latest with node.js v12,
+          check-success=Test on windows-latest with node.js v14,
           label=test-failed,
         ],
       actions: { label: { remove: [test-failed] } },
