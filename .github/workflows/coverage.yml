@@ -13,13 +13,7 @@
               { uses: actions/setup-node@v1, with: { node-version: 14 } },
               { run: yarn ci },
               { run: yarn coverage-ci },
-              {
-                uses: paambaati/codeclimate-action@v2.7.1,
-                env:
-                  {
-                    CC_TEST_REPORTER_ID: 2b133a517c39b3e58a42f0a67bb9cca57e1f217fc86ae91bd615d2879c78f576,
-                  },
-              },
+              { run: 'bash <(curl -s https://codecov.io/bash)' },
             ],
         },
     },
