@@ -157,6 +157,26 @@ pull_request_rules:
       actions: { label: { remove: [test-failed] } },
     },
     {
+      name: Add security-issue label,
+      conditions:
+        [
+          check-failure~=(CodeQL Analysis|OSSAR Scan),
+          -closed,
+          label!=security-issue,
+        ],
+      actions: { label: { add: [security-issue] } },
+    },
+    {
+      name: Remove security-issue label,
+      conditions:
+        [
+          check-success=CodeQL Analysis,
+          check-success=OSSAR Scan,
+          label=security-issue,
+        ],
+      actions: { label: { remove: [security-issue] } },
+    },
+    {
       name: Remove outdated reviews,
       conditions: [base=main, -merged, -closed],
       actions: { dismiss_reviews: { approved: true, changes_requested: true } },
@@ -206,7 +226,7 @@ pull_request_rules:
       name: Add ready-to-merge label,
       conditions:
         [
-          -label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|code-quality-issue|code-style-issue|blocked),
+          -label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|blocked),
           label~=(approved|owner-approved|author-is-owner),
           -closed,
           -merged,
@@ -218,7 +238,7 @@ pull_request_rules:
       name: Remove ready-to-merge label,
       conditions:
         [
-          label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|code-quality-issue|code-style-issue|blocked),
+          label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|blocked),
           label=ready-to-merge,
         ],
       actions: { label: { remove: [ready-to-merge] } },
