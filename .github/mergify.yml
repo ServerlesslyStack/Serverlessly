@@ -13,14 +13,24 @@ pull_request_rules:
         },
     },
     {
-      name: Unblock PR if it is NOT opened against main branch,
+      name: Unblock PR if it is opened against main branch,
       conditions: [base=main, label=blocked],
       actions: { label: { remove: [blocked] } },
     },
     {
-      name: Add work-in-progress label,
+      name: Add work-in-progress label upon finding construction emoji in title,
+      conditions: [title~=🚧, label!=work-in-progress, -closed],
+      actions: { label: { add: [work-in-progress] } },
+    },
+    {
+      name: Add work-in-progress label upon finding wip (case insensitive) word in title,
+      conditions: ['title~=(?i)wip', label!=work-in-progress, -closed],
+      actions: { label: { add: [work-in-progress] } },
+    },
+    {
+      name: Add work-in-progress label upon finding work in progress (case insensitive) word in title,
       conditions:
-        [title~=🚧|wip|work in progress, label!=work-in-progress, -closed],
+        ['title~=(?i)work in progress', label!=work-in-progress, -closed],
       actions: { label: { add: [work-in-progress] } },
     },
     {
