@@ -4,11 +4,11 @@ import {
   DummyHandlerSync,
   DummyHandlerSyncOrAsync,
   dummyMiddlewareEngineAsync,
-  dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol,
+  dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
   dummyMiddlewareEngineSync,
   dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
   dummyMiddlewareEngineSyncOrAsync,
-  dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol,
+  dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
   dummyPlatformAdapterAsync,
   dummyPlatformAdapterAsyncHandlerToSyncProtocol,
   dummyPlatformAdapterSync,
@@ -18,8 +18,10 @@ import {
   DummyProtocolSync,
   DummyProtocolSyncOrAsync,
   faultyMiddlewareEngineAsync,
+  faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
   faultyMiddlewareEngineSync,
   faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+  faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
   faultyMiddlewareEngineSyncOrAsync,
   faultyPlatformAdapterAsync,
   faultyPlatformAdapterAsyncHandlerToSyncProtocol,
@@ -37,11 +39,15 @@ import {
 describe('No platFormAdapter', () => {
   describe('getHandler() method of ServerlesslySync', () => {
     let serverlessly: ServerlesslySync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -50,10 +56,18 @@ describe('No platFormAdapter', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler();
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -71,6 +85,31 @@ describe('No platFormAdapter', () => {
       ).toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
@@ -78,15 +117,44 @@ describe('No platFormAdapter', () => {
           .getHandler();
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslyAsync', () => {
     let serverlessly: ServerlesslyAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineAsync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -95,10 +163,18 @@ describe('No platFormAdapter', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler();
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -118,6 +194,31 @@ describe('No platFormAdapter', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(async () => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          async () => 'Foo',
+          async () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
@@ -125,15 +226,44 @@ describe('No platFormAdapter', () => {
           .getHandler();
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .pipe(async () => 'Foo')
+          .getHandler();
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslyAsyncToSync', () => {
     let serverlessly: ServerlesslyAsyncToSync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -142,10 +272,18 @@ describe('No platFormAdapter', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler();
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -163,6 +301,31 @@ describe('No platFormAdapter', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
@@ -172,15 +335,48 @@ describe('No platFormAdapter', () => {
           .getHandler();
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsync', () => {
     let serverlessly: ServerlesslySyncOrAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -189,10 +385,18 @@ describe('No platFormAdapter', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler();
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -218,6 +422,31 @@ describe('No platFormAdapter', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash !!!');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
@@ -227,15 +456,48 @@ describe('No platFormAdapter', () => {
           .getHandler();
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsyncToSync', () => {
     let serverlessly: ServerlesslySyncOrAsyncToSync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol,
+        middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -244,10 +506,18 @@ describe('No platFormAdapter', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler();
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -267,22 +537,82 @@ describe('No platFormAdapter', () => {
       ).toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
           .pipe(() => 'Foo')
           .getHandler();
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsyncToAsync', () => {
     let serverlessly: ServerlesslySyncOrAsyncToAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol,
+        middlewareEngine: dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -291,10 +621,18 @@ describe('No platFormAdapter', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler();
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -314,24 +652,87 @@ describe('No platFormAdapter', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(async () => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          async () => 'Foo',
+          async () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler();
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
           .pipe(async () => 'Foo')
           .getHandler();
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(async () => 'Foo')
+          .getHandler();
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler();
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
   });
 });
 
 describe('dummyPlatFormAdapterSync', () => {
+  // dummyPlatformAdapterSync isn't compatible with ServerlesslyAsync, ServerlesslyAsyncToSync, ServerlesslySyncOrAsync, ServerlesslySyncOrAsyncToSync & ServerlesslySyncOrAsyncToAsync
+  // Reason: Protocol Incompatibility
+
   describe('getHandler() method of ServerlesslySync', () => {
     let serverlessly: ServerlesslySync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -340,10 +741,20 @@ describe('dummyPlatFormAdapterSync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({ platformAdapter: dummyPlatformAdapterSync });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .getHandler({ platformAdapter: dummyPlatformAdapterSync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -367,12 +778,62 @@ describe('dummyPlatFormAdapterSync', () => {
       ).toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
           .pipe(() => 'Foo')
           .getHandler({ platformAdapter: dummyPlatformAdapterSync });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -383,6 +844,31 @@ describe('dummyPlatFormAdapterSync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
@@ -390,10 +876,32 @@ describe('dummyPlatFormAdapterSync', () => {
           .getHandler({ platformAdapter: faultyPlatformAdapterSync });
       }).toThrowError();
     });
-  });
 
-  // dummyPlatformAdapterSync isn't compatible with ServerlesslyAsync, ServerlesslyAsyncToSync, ServerlesslySyncOrAsync, ServerlesslySyncOrAsyncToSync & ServerlesslySyncOrAsyncToAsync
-  // Reason: Protocol Incompatibility
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+  });
 });
 
 describe('dummyPlatFormAdapterAsync', () => {
@@ -402,11 +910,15 @@ describe('dummyPlatFormAdapterAsync', () => {
 
   describe('getHandler() method of ServerlesslyAsync', () => {
     let serverlessly: ServerlesslyAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineAsync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -415,10 +927,20 @@ describe('dummyPlatFormAdapterAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({ platformAdapter: dummyPlatformAdapterAsync });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -442,12 +964,62 @@ describe('dummyPlatFormAdapterAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(async () => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          async () => 'Foo',
+          async () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
           .pipe(async () => 'Foo')
           .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -458,6 +1030,31 @@ describe('dummyPlatFormAdapterAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
@@ -465,15 +1062,44 @@ describe('dummyPlatFormAdapterAsync', () => {
           .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslyAsyncToSync', () => {
     let serverlessly: ServerlesslyAsyncToSync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -482,10 +1108,20 @@ describe('dummyPlatFormAdapterAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({ platformAdapter: dummyPlatformAdapterAsync });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -509,6 +1145,31 @@ describe('dummyPlatFormAdapterAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
@@ -519,12 +1180,66 @@ describe('dummyPlatFormAdapterAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
       expect(() => {
         serverlessly
           .pipe(() => 'Foo')
           .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
@@ -536,17 +1251,53 @@ describe('dummyPlatFormAdapterAsync', () => {
           .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 });
 
 describe('dummyPlatformAdapterAsyncHandlerToSyncProtocol', () => {
+  // dummyPlatformAdapterAsyncHanderToSyncProtocol isn't compatible with ServerlesslyAsync, ServerlesslyAsyncToSync, ServerlesslySyncOrAsync, ServerlesslySyncOrAsyncToSync & ServerlesslySyncOrAsyncToAsync
+  // Reason: Protocol Incompatibility
+
   describe('getHandler() method of ServerlesslySync', () => {
     let serverlessly: ServerlesslySync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -557,12 +1308,22 @@ describe('dummyPlatformAdapterAsyncHandlerToSyncProtocol', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -588,6 +1349,35 @@ describe('dummyPlatformAdapterAsyncHandlerToSyncProtocol', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({
+          platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
+        });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({
+          platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
+        });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
@@ -598,6 +1388,35 @@ describe('dummyPlatformAdapterAsyncHandlerToSyncProtocol', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
       expect(() => {
         serverlessly
@@ -608,31 +1427,88 @@ describe('dummyPlatformAdapterAsyncHandlerToSyncProtocol', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterAsyncHandlerToSyncProtocol,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterAsyncHandlerToSyncProtocol,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineSync,
-        })
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
           .pipe(() => 'Foo')
           .getHandler({
             platformAdapter: faultyPlatformAdapterAsyncHandlerToSyncProtocol,
           });
       }).toThrowError();
     });
-  });
 
-  // dummyPlatformAdapterAsyncHanderToSyncProtocol isn't compatible with ServerlesslyAsync, ServerlesslyAsyncToSync, ServerlesslySyncOrAsync, ServerlesslySyncOrAsyncToSync & ServerlesslySyncOrAsyncToAsync
-  // Reason: Protocol Incompatibility
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterAsyncHandlerToSyncProtocol,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterAsyncHandlerToSyncProtocol,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+  });
 });
 
 describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
   describe('getHandler() method of ServerlesslySync', () => {
     let serverlessly: ServerlesslySync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -643,12 +1519,22 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -674,6 +1560,31 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       ).toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
@@ -682,6 +1593,35 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
             platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -694,26 +1634,86 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineSync,
-        })
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
           .pipe(() => 'Foo')
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslyAsync', () => {
     let serverlessly: ServerlesslyAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineAsync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -724,12 +1724,22 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -755,6 +1765,31 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(async () => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          async () => 'Foo',
+          async () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
@@ -763,6 +1798,35 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
             platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -775,26 +1839,86 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineAsync,
-        })
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
           .pipe(async () => 'Foo')
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslyAsyncToSync', () => {
     let serverlessly: ServerlesslyAsyncToSync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -805,12 +1929,22 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -836,6 +1970,31 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
@@ -848,6 +2007,39 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
       expect(() => {
         serverlessly
@@ -856,6 +2048,35 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
             platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
@@ -869,15 +2090,52 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsync', () => {
     let serverlessly: ServerlesslySyncOrAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -888,12 +2146,22 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -923,26 +2191,128 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash !!!');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
           middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
         })
-          .pipe(async () => 'Foo')
+          .pipe(
+            async () => 'Foo',
+            () => 'Bar'
+          )
           .getHandler({
             platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .pipe(
+            async () => 'Foo',
+            () => 'Bar'
+          )
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .on('ERROR', errorListener)
+          .pipe(
+            async () => 'Foo',
+            () => 'Bar'
+          )
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
       expect(() => {
         serverlessly
-          .pipe(() => 'Foo')
+          .pipe(
+            async () => 'Foo',
+            () => 'Bar'
+          )
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(
+            async () => 'Foo',
+            () => 'Bar'
+          )
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
@@ -950,21 +2320,64 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
         new Serverlessly({
           middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
         })
-          .pipe(() => 'Foo')
+          .pipe(
+            async () => 'Foo',
+            () => 'Bar'
+          )
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .pipe(
+            async () => 'Foo',
+            () => 'Bar'
+          )
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsyncToSync', () => {
     let serverlessly: ServerlesslySyncOrAsyncToSync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol,
+        middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -975,12 +2388,22 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1006,14 +2429,74 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       ).toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
           .pipe(() => 'Foo')
           .getHandler({
             platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -1026,10 +2509,39 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineSync,
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
         })
           .pipe(() => 'Foo')
           .getHandler({
@@ -1037,15 +2549,52 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsyncToAsync', () => {
     let serverlessly: ServerlesslySyncOrAsyncToAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol,
+        middlewareEngine: dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -1056,12 +2605,22 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1087,14 +2646,74 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(async () => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          async () => 'Foo',
+          async () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
           .pipe(async () => 'Foo')
           .getHandler({
             platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -1107,16 +2726,78 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineAsync,
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
         })
           .pipe(async () => 'Foo')
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsyncStrict,
+          });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
   });
 });
@@ -1124,11 +2805,15 @@ describe('dummyPlatformAdapterSyncOrAsyncStrict', () => {
 describe('dummyPlatformAdapterSyncOrAsync', () => {
   describe('getHandler() method of ServerlesslySync', () => {
     let serverlessly: ServerlesslySync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -1139,12 +2824,22 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsync,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsync,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1170,6 +2865,31 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
@@ -1178,6 +2898,33 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
             platformAdapter: dummyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -1190,26 +2937,82 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineSync,
-        })
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
           .pipe(() => 'Foo')
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslyAsync', () => {
     let serverlessly: ServerlesslyAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineAsync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -1220,12 +3023,22 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsync,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsync,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1251,6 +3064,31 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(async () => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          async () => 'Foo',
+          async () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
@@ -1259,6 +3097,33 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
             platformAdapter: dummyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -1271,26 +3136,82 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineAsync,
-        })
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
           .pipe(async () => 'Foo')
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslyAsyncToSync', () => {
     let serverlessly: ServerlesslyAsyncToSync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -1301,12 +3222,22 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsync,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsync,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1332,6 +3263,31 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
@@ -1344,6 +3300,37 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
       expect(() => {
         serverlessly
@@ -1352,6 +3339,33 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
             platformAdapter: faultyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
@@ -1365,15 +3379,50 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsync', () => {
     let serverlessly: ServerlesslySyncOrAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
         middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -1384,12 +3433,22 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsync,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsync,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1419,6 +3478,31 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash !!!');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
@@ -1431,6 +3515,37 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
       expect(() => {
         serverlessly
@@ -1439,6 +3554,33 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
             platformAdapter: faultyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
@@ -1452,15 +3594,50 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsyncToSync', () => {
     let serverlessly: ServerlesslySyncOrAsyncToSync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol,
+        middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -1471,12 +3648,22 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsync,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsync,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1502,14 +3689,72 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(() => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          () => 'Foo',
+          () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineSync })
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
           .pipe(() => 'Foo')
           .getHandler({
             platformAdapter: dummyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -1522,10 +3767,37 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineSync,
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
         })
           .pipe(() => 'Foo')
           .getHandler({
@@ -1533,15 +3805,50 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
           });
       }).toThrowError();
     });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(() => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(() => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
+    });
   });
 
   describe('getHandler() method of ServerlesslySyncOrAsyncToAsync', () => {
     let serverlessly: ServerlesslySyncOrAsyncToAsync;
+    let logsListener: jest.Mock;
+    let errorListener: jest.Mock;
 
     beforeEach(() => {
       serverlessly = new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol,
+        middlewareEngine: dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
       });
+      logsListener = jest.fn();
+      errorListener = jest.fn();
     });
 
     test('getHandler() throws error if no middleware is found', () => {
@@ -1552,12 +3859,22 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
-    test('getHandler() throws specific error if no middleware is found', () => {
+    test('getHandler() throws correct error if no middleware is found & no ERROR event handler is attached', () => {
       expect(() => {
         serverlessly.getHandler({
           platformAdapter: dummyPlatformAdapterSyncOrAsync,
         });
-      }).toThrowError('No Middleware Found');
+      }).toThrow(new Error('No Middleware Found'));
+    });
+
+    test('getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached', () => {
+      expect(() => {
+        serverlessly.on('ERROR', errorListener).getHandler({
+          platformAdapter: dummyPlatformAdapterSyncOrAsync,
+        });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('No Middleware Found'));
     });
 
     test('getHandler() returns handler of correct type', () => {
@@ -1583,14 +3900,72 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       ).resolves.toBe('Hulk Says: Hulk Smash');
     });
 
+    test('getHandler() emits logs twice when it encounters no error', () => {
+      serverlessly
+        .pipe(async () => 'Foo')
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).toBeCalledTimes(2);
+    });
+
+    test('getHandler() emits correct logs when it encounters no error', () => {
+      serverlessly
+        .pipe(
+          async () => 'Foo',
+          async () => 'Bar'
+        )
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+
+      expect(logsListener).nthCalledWith(1, 'getHandler: 2 middlewares found');
+      expect(logsListener).nthCalledWith(
+        2,
+        'getHandler: Platform Adapter found'
+      );
+    });
+
     test('getHandler() throws error if middlewareEngine throws or encounters error', () => {
       expect(() => {
-        new Serverlessly({ middlewareEngine: faultyMiddlewareEngineAsync })
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
           .pipe(async () => 'Foo')
           .getHandler({
             platformAdapter: dummyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: dummyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
 
     test('getHandler() throws error if platformAdapter throws or encounters error', () => {
@@ -1603,16 +3978,74 @@ describe('dummyPlatformAdapterSyncOrAsync', () => {
       }).toThrowError();
     });
 
+    test('getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
+      );
+    });
+
     test('getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error', () => {
       expect(() => {
         new Serverlessly({
-          middlewareEngine: faultyMiddlewareEngineAsync,
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
         })
           .pipe(async () => 'Foo')
           .getHandler({
             platformAdapter: faultyPlatformAdapterSyncOrAsync,
           });
       }).toThrowError();
+    });
+
+    test('getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .pipe(async () => 'Foo')
+          .getHandler({
+            platformAdapter: faultyPlatformAdapterSyncOrAsync,
+          });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached', () => {
+      expect(() => {
+        new Serverlessly({
+          middlewareEngine: faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
+        })
+          .on('ERROR', errorListener)
+          .pipe(async () => 'Foo')
+          .getHandler({ platformAdapter: faultyPlatformAdapterSyncOrAsync });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(
+        new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
+      );
     });
   });
 });

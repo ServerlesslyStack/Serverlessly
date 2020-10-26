@@ -1,11 +1,11 @@
 import { Serverlessly } from '@serverlessly/core';
 import {
   dummyMiddlewareEngineAsync,
-  dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol,
+  dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
   dummyMiddlewareEngineSync,
   dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
   dummyMiddlewareEngineSyncOrAsync,
-  dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol,
+  dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
   ServerlesslyAsync,
   ServerlesslyAsyncToSync,
   ServerlesslySync,
@@ -14,7 +14,7 @@ import {
   ServerlesslySyncOrAsyncToSync,
 } from '../dummies';
 
-test('Serverlessly instance is successfully created using sync middlewareEngine', () => {
+test('Serverlessly instance is successfully created with dummyMiddlewareEngineSync', () => {
   expect<ServerlesslySync>(
     new Serverlessly({
       middlewareEngine: dummyMiddlewareEngineSync,
@@ -22,7 +22,7 @@ test('Serverlessly instance is successfully created using sync middlewareEngine'
   ).toBeTruthy();
 });
 
-test('Serverlessly instance is successfully created using async middlewareEngine', () => {
+test('Serverlessly instance is successfully created with dummyMiddlewareEngineAsync', () => {
   expect<ServerlesslyAsync>(
     new Serverlessly({
       middlewareEngine: dummyMiddlewareEngineAsync,
@@ -30,7 +30,7 @@ test('Serverlessly instance is successfully created using async middlewareEngine
   ).toBeTruthy();
 });
 
-test('Serverlessly instance is successfully created using sync middlewareEngine which uses async protocol', () => {
+test('Serverlessly instance is successfully created with dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol', () => {
   expect<ServerlesslyAsyncToSync>(
     new Serverlessly({
       middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
@@ -38,7 +38,7 @@ test('Serverlessly instance is successfully created using sync middlewareEngine 
   ).toBeTruthy();
 });
 
-test('Serverlessly instance is successfully created using sync or async middlewareEngine', () => {
+test('Serverlessly instance is successfully created with dummyMiddlewareEngineSyncOrAsync', () => {
   expect<ServerlesslySyncOrAsync>(
     new Serverlessly({
       middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
@@ -46,18 +46,18 @@ test('Serverlessly instance is successfully created using sync or async middlewa
   ).toBeTruthy();
 });
 
-test('Serverlessly instance is successfully created using sync middlewareEngine which uses sync or async protocol', () => {
+test('Serverlessly instance is successfully created with dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol', () => {
   expect<ServerlesslySyncOrAsyncToSync>(
     new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol,
+      middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
     })
   ).toBeTruthy();
 });
 
-test('Serverlessly instance is successfully created using sync middlewareEngine which uses sync or async protocol', () => {
+test('Serverlessly instance is successfully created with dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol', () => {
   expect<ServerlesslySyncOrAsyncToAsync>(
     new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol,
+      middlewareEngine: dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
     })
   ).toBeTruthy();
 });

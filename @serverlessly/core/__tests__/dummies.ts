@@ -74,12 +74,12 @@ export type DummyMiddlewareEngineSyncOrAsync = MiddlewareEngine<
   DummyMiddlewareSyncOrAsync
 >;
 
-export type DummyMiddlewareEngineSyncWithSyncOrAsyncProtocol = MiddlewareEngine<
+export type DummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol = MiddlewareEngine<
   DummyProtocolSyncOrAsync,
   DummyMiddlewareSync
 >;
 
-export type DummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol = MiddlewareEngine<
+export type DummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol = MiddlewareEngine<
   DummyProtocolSyncOrAsync,
   DummyMiddlewareAsync
 >;
@@ -119,12 +119,12 @@ export const dummyMiddlewareEngineSyncOrAsync: DummyMiddlewareEngineSyncOrAsync 
     Promise.resolve(prefix)
   );
 
-export const dummyMiddlewareEngineSyncWithSyncOrAsyncProtocol: DummyMiddlewareEngineSyncWithSyncOrAsyncProtocol = (
+export const dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol = (
   middlewares: DummyMiddlewareSync[]
 ) => (prefix: string) =>
   middlewares.reduce((acc, current) => acc + ' ' + current(), prefix);
 
-export const dummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol: DummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol = (
+export const dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol = (
   middlewares: DummyMiddlewareAsync[]
 ) => async (prefix: string) =>
   middlewares.reduce(
@@ -188,7 +188,7 @@ export const faultyMiddlewareEngineSyncOrAsync: DummyMiddlewareEngineSyncOrAsync
     );
 };
 
-export const faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineSyncWithSyncOrAsyncProtocol = (
+export const faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol = (
   middlewares: DummyMiddlewareSync[]
 ) => {
   const array = [];
@@ -197,7 +197,7 @@ export const faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol: DummyMid
     middlewares.reduce((acc, current) => acc + ' ' + current(), prefix);
 };
 
-export const faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineAsyncWithSyncOrAsyncProtocol = (
+export const faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol: DummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol = (
   middlewares: DummyMiddlewareAsync[]
 ) => {
   const array = [];
