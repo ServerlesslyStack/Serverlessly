@@ -3,5 +3,5 @@ export type PlatformAdapter<TProtocol, THandler> = (
 ) => THandler;
 
 export interface HandlerProps<TProtocol, THandler> {
-  platformAdapter: PlatformAdapter<TProtocol, THandler>;
+  platformAdapter?: PlatformAdapter<TProtocol, THandler>;
 }
