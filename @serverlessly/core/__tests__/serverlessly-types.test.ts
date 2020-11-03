@@ -71,7 +71,7 @@ describe('ServerlesslySync', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
-      }) as DummyHandlerAsync
+      })
     );
     expect<DummyHandlerSyncOrAsync>(
       serverlessly
@@ -91,7 +91,7 @@ describe('ServerlesslySync', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      }) as DummyHandlerAsync
+      })
     );
   });
 });
@@ -130,7 +130,7 @@ describe('ServerlesslyAsync', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsync,
-      }) as DummyHandlerAsync
+      })
     );
     expect<DummyHandlerSyncOrAsync>(
       serverlessly
@@ -150,7 +150,7 @@ describe('ServerlesslyAsync', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      }) as DummyHandlerAsync
+      })
     );
   });
 });
@@ -191,7 +191,7 @@ describe('ServerlesslyAsyncProtocolWithSyncMiddlewares', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsync,
-      }) as DummyHandlerAsync
+      })
     );
     expect<DummyHandlerSyncOrAsync>(
       serverlessly
@@ -211,7 +211,7 @@ describe('ServerlesslyAsyncProtocolWithSyncMiddlewares', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      }) as DummyHandlerAsync
+      })
     );
   });
 });
@@ -271,7 +271,7 @@ describe('ServerlesslySyncOrAsync', () => {
         .pipe(dummyMiddlewaresSyncOrAsync[0], dummyMiddlewaresSyncOrAsync[1])
         .getHandler({
           platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-        }) as DummyHandlerAsync
+        })
     );
   });
 });
@@ -324,7 +324,7 @@ describe('ServerlesslySyncOrAsyncProtocolWithSyncMiddlewares', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      }) as DummyHandlerAsync
+      })
     );
   });
 });
@@ -377,7 +377,7 @@ describe('ServerlesslySyncOrAsyncProtocolWithAsyncMiddlewares', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      }) as DummyHandlerAsync
+      })
     );
   });
 });
@@ -433,7 +433,7 @@ describe('ServerlesslyAsyncProtocolWithSyncOrAsyncMiddlewares', () => {
     expect<DummyHandlerAsync>(
       serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
         platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      }) as DummyHandlerAsync
+      })
     );
   });
 });

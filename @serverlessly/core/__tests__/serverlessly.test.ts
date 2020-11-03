@@ -1,609 +1,428 @@
+/* eslint-disable no-empty */
 import {
   MiddlewareEngine,
   PlatformAdapter,
   Serverlessly,
 } from '@serverlessly/core';
+import * as protocolPlatformAdapterFactory from '../lib/platform-adapter';
+import * as validateMiddleware from '../lib/helpers/validate-middlewares';
+import * as coreCodeFactory from '../lib/helpers/core-code-factory';
+import * as computeHandler from '../lib/helpers/compute-handler';
 import {
   dummyMiddlewareEngineSync,
-  dummyMiddlewareEngineAsync,
-  dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
-  dummyMiddlewareEngineSyncOrAsync,
-  dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
-  dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
-  DummyMiddlewareSync,
-  DummyMiddlewareAsync,
-  DummyMiddlewareSyncOrAsync,
   dummyMiddlewaresSync,
-  dummyMiddlewaresAsync,
-  dummyMiddlewaresSyncOrAsync,
-  dummyPlatformAdapterSyncOrAsyncStrict,
-  dummyPlatformAdapterSyncOrAsync,
   dummyPlatformAdapterSync,
-  dummyPlatformAdapterAsync,
-  dummyPlatformAdapterAsyncHandlerToSyncProtocol,
-  faultyMiddlewareEngineSync,
-  faultyMiddlewareEngineAsync,
-  faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
-  faultyMiddlewareEngineSyncOrAsync,
-  faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
-  faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
-  faultyPlatformAdapterSyncOrAsyncStrict,
-  faultyPlatformAdapterSyncOrAsync,
-  faultyPlatformAdapterSync,
-  faultyPlatformAdapterAsync,
-  faultyPlatformAdapterAsyncHandlerToSyncProtocol,
-  dummyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol,
-  faultyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol,
-  dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-  faultyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-  dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol,
-  faultyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol,
-  dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
-  faultyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
+  ServerlesslySync,
 } from './dummies';
 
-type TestCase = [
-  string,
-  boolean,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  MiddlewareEngine<any, any>,
-  DummyMiddlewareSync[] | DummyMiddlewareAsync[] | DummyMiddlewareSyncOrAsync[]
-];
+const middlewareEngine = dummyMiddlewareEngineSync;
+const middlewares = dummyMiddlewaresSync;
+const platformAdapter = dummyPlatformAdapterSync;
 
-const testCases: TestCase[] = [
-  [
-    'dummyMiddlewareEngineSync',
-    false,
-    dummyMiddlewareEngineSync,
-    dummyMiddlewaresSync,
-  ],
-  [
-    'faultyMiddlewareEngineSync',
-    true,
-    faultyMiddlewareEngineSync,
-    dummyMiddlewaresSync,
-  ],
-  [
-    'dummyMiddlewareEngineAsync',
-    false,
-    dummyMiddlewareEngineAsync,
-    dummyMiddlewaresAsync,
-  ],
-  [
-    'faultyMiddlewareEngineAsync',
-    true,
-    faultyMiddlewareEngineAsync,
-    dummyMiddlewaresAsync,
-  ],
-  [
-    'dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol',
-    false,
-    dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
-    dummyMiddlewaresSync,
-  ],
-  [
-    'faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol',
-    true,
-    faultyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
-    dummyMiddlewaresSync,
-  ],
-  [
-    'dummyMiddlewareEngineSyncOrAsync',
-    false,
-    dummyMiddlewareEngineSyncOrAsync,
-    dummyMiddlewaresSyncOrAsync,
-  ],
-  [
-    'faultyMiddlewareEngineSyncOrAsync',
-    true,
-    faultyMiddlewareEngineSyncOrAsync,
-    dummyMiddlewaresSyncOrAsync,
-  ],
-  [
-    'dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol',
-    false,
-    dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
-    dummyMiddlewaresSync,
-  ],
-  [
-    'faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol',
-    true,
-    faultyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
-    dummyMiddlewaresSync,
-  ],
-  [
-    'dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol',
-    false,
-    dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
-    dummyMiddlewaresAsync,
-  ],
-  [
-    'faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol',
-    true,
-    faultyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
-    dummyMiddlewaresAsync,
-  ],
-  [
-    'dummyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol',
-    false,
-    dummyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol,
-    dummyMiddlewaresSyncOrAsync,
-  ],
-  [
-    'faultyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol',
-    true,
-    faultyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol,
-    dummyMiddlewaresSyncOrAsync,
-  ],
-];
+test('Serverlessly instance is successfully initialized', () => {
+  expect(new Serverlessly({ middlewareEngine })).toBeTruthy();
+});
 
-type DummyPlatformAdapterCase = [
-  string,
-  boolean,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  PlatformAdapter<any, any> | undefined
-];
+describe('pipe() Tests', () => {
+  let serverlessly: ServerlesslySync;
 
-const dummyPlatformAdapterCases: DummyPlatformAdapterCase[] = [
-  ['no', false, undefined],
-  [
-    'dummyPlatformAdapterSyncOrAsyncStrict',
-    false,
-    dummyPlatformAdapterSyncOrAsyncStrict,
-  ],
-  [
-    'faultyPlatformAdapterSyncOrAsyncStrict',
-    true,
-    faultyPlatformAdapterSyncOrAsyncStrict,
-  ],
-  ['dummyPlatformAdapterSyncOrAsync', false, dummyPlatformAdapterSyncOrAsync],
-  ['faultyPlatformAdapterSyncOrAsync', true, faultyPlatformAdapterSyncOrAsync],
-  ['dummyPlatformAdapterSync', false, dummyPlatformAdapterSync],
-  ['faultyPlatformAdapterSync', true, faultyPlatformAdapterSync],
-  ['dummyPlatFormAdapterAsync', false, dummyPlatformAdapterAsync],
-  ['faultyPlatFormAdapterAsync', true, faultyPlatformAdapterAsync],
-  [
-    'dummyPlatformAdapterAsyncHandlerToSyncProtocol',
-    false,
-    dummyPlatformAdapterAsyncHandlerToSyncProtocol,
-  ],
-  [
-    'faultyPlatformAdapterAsyncHandlerToSyncProtocol',
-    true,
-    faultyPlatformAdapterAsyncHandlerToSyncProtocol,
-  ],
-  [
-    'dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol',
-    false,
-    dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol,
-  ],
-  [
-    'faultyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol',
-    true,
-    faultyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol,
-  ],
-  [
-    'dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol',
-    false,
-    dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
-  ],
-  [
-    'faultyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol',
-    true,
-    faultyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
-  ],
-  [
-    'dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol',
-    false,
-    dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-  ],
-  [
-    'faultyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol',
-    true,
-    faultyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-  ],
-];
+  let logsListener: jest.Mock;
+  let newMiddlewaresListener: jest.Mock;
+  let middlewaresListener: jest.Mock;
 
-describe.each(testCases)(
-  'Serverlessly tests with %s Middleware Engine',
-  (
-    middlewareEngineName,
-    isFaultyMiddlewareEngine,
-    middlewareEngine,
-    middlewares
-  ) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let serverlessly: Serverlessly<any, any>;
-    let logsListener: jest.Mock;
-    let errorListener: jest.Mock;
-    let newMiddlewaresListener: jest.Mock;
-    let middlewaresListener: jest.Mock;
-
-    beforeEach(() => {
-      serverlessly = new Serverlessly({
-        middlewareEngine,
-      });
-
-      logsListener = jest.fn();
-      errorListener = jest.fn();
-      newMiddlewaresListener = jest.fn();
-      middlewaresListener = jest.fn();
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      middlewareEngine,
     });
 
-    test(`Serverlessly instance is successfully initialized with ${middlewareEngineName}`, () => {
-      expect(serverlessly).toBeTruthy();
-    });
+    logsListener = jest.fn();
+    newMiddlewaresListener = jest.fn();
+    middlewaresListener = jest.fn();
+  });
 
-    describe('pipe() method', () => {
-      test('pipe() returns Serverlessly instance', () => {
-        expect(
-          serverlessly.pipe(middlewares[0], ...middlewares.slice(1))
-        ).toBeInstanceOf(Serverlessly);
-      });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-      test('pipe() returns same Serverlessly instance', () => {
-        expect(serverlessly.pipe(middlewares[0], ...middlewares.slice(1))).toBe(
-          serverlessly
-        );
-      });
+  test('pipe() returns Serverlessly instance', () => {
+    expect(
+      serverlessly.pipe(middlewares[0], ...middlewares.slice(1))
+    ).toBeInstanceOf(Serverlessly);
+  });
 
-      test('multiple pipe() methods can be chained', () => {
-        expect(() => {
-          serverlessly.pipe(middlewares[0]).pipe(middlewares[1]);
-        }).not.toThrowError();
-      });
-
-      test('pipe() properly updates internal state', () => {
-        expect(
-          serverlessly
-            .pipe(middlewares[0])
-            .pipe(middlewares[1])
-            .pipe(middlewares[2], middlewares[3]).middlewares
-        ).toStrictEqual(middlewares);
-      });
-
-      describe('Events emitted by pipe()', () => {
-        test('Events are emitted', () => {
-          serverlessly
-            .on('LOG', logsListener)
-            .on('NEW_MIDDLEWARES', newMiddlewaresListener)
-            .on('MIDDLEWARES', middlewaresListener)
-            .pipe(middlewares[0]);
-          expect(logsListener).toBeCalled();
-          expect(newMiddlewaresListener).toBeCalled();
-          expect(middlewaresListener).toBeCalled();
-        });
-
-        test('events are emitted n times for n pipe methods', () => {
-          const app = serverlessly
-            .on('LOG', logsListener)
-            .on('NEW_MIDDLEWARES', newMiddlewaresListener)
-            .on('MIDDLEWARES', middlewaresListener);
-          expect(logsListener).toBeCalledTimes(0);
-          expect(newMiddlewaresListener).toBeCalledTimes(0);
-          expect(middlewaresListener).toBeCalledTimes(0);
-
-          app.pipe(middlewares[0]).pipe(middlewares[1]);
-          expect(logsListener).toBeCalledTimes(2);
-          expect(newMiddlewaresListener).toBeCalledTimes(2);
-          expect(middlewaresListener).toBeCalledTimes(2);
-
-          app.pipe(middlewares[2]);
-          expect(logsListener).toBeCalledTimes(3);
-          expect(newMiddlewaresListener).toBeCalledTimes(3);
-          expect(middlewaresListener).toBeCalledTimes(3);
-
-          app.pipe(middlewares[3]).pipe(middlewares[0]);
-          expect(logsListener).toBeCalledTimes(5);
-          expect(newMiddlewaresListener).toBeCalledTimes(5);
-          expect(middlewaresListener).toBeCalledTimes(5);
-        });
-
-        test('correct events are emitted', () => {
-          const app = serverlessly
-            .on('LOG', logsListener)
-            .on('NEW_MIDDLEWARES', newMiddlewaresListener)
-            .on('MIDDLEWARES', middlewaresListener)
-            .pipe(middlewares[0], middlewares[1]);
-          expect(logsListener).toBeCalledWith(
-            'Pipe: 2 middlewares registered (new global middlewares count: 2)'
-          );
-          expect(newMiddlewaresListener).toBeCalledWith([
-            middlewares[0],
-            middlewares[1],
-          ]);
-          expect(middlewaresListener).toBeCalledWith([
-            middlewares[0],
-            middlewares[1],
-          ]);
-
-          app.pipe(middlewares[2]);
-          expect(logsListener).lastCalledWith(
-            'Pipe: 1 middleware registered (new global middlewares count: 3)'
-          );
-          expect(newMiddlewaresListener).lastCalledWith([middlewares[2]]);
-          expect(middlewaresListener).lastCalledWith([
-            middlewares[0],
-            middlewares[1],
-            middlewares[2],
-          ]);
-
-          app.pipe(middlewares[3]);
-          expect(logsListener).lastCalledWith(
-            'Pipe: 1 middleware registered (new global middlewares count: 4)'
-          );
-          expect(newMiddlewaresListener).lastCalledWith([middlewares[3]]);
-          expect(middlewaresListener).lastCalledWith([
-            middlewares[0],
-            middlewares[1],
-            middlewares[2],
-            middlewares[3],
-          ]);
-        });
-      });
-    });
-
-    describe.each(dummyPlatformAdapterCases)(
-      'Tests with %s Platform Adapter',
-      (platformAdapterName, isFaultyPlatformAdapter, platformAdapter) => {
-        const hTest =
-          !isFaultyMiddlewareEngine && !isFaultyPlatformAdapter
-            ? test
-            : test.skip;
-        const fTest =
-          isFaultyMiddlewareEngine && isFaultyPlatformAdapter
-            ? test
-            : test.skip;
-        const mfTest =
-          isFaultyMiddlewareEngine && !isFaultyPlatformAdapter
-            ? test
-            : test.skip;
-        const pfTest =
-          !isFaultyMiddlewareEngine && isFaultyPlatformAdapter
-            ? test
-            : test.skip;
-
-        hTest('getHandler() throws error if no middleware is found', () => {
-          expect(() => {
-            serverlessly.getHandler({ platformAdapter });
-          }).toThrowError();
-        });
-
-        hTest(
-          'getHandler() throws correct error if no middleware is found & no ERROR event handler is attached',
-          () => {
-            expect(() => {
-              serverlessly.getHandler({ platformAdapter });
-            }).toThrow(new Error('No Middleware Found'));
-          }
-        );
-
-        hTest(
-          'getHandler() throws & emits correct error if no middleware is found, but ERROR event handler is attached',
-          () => {
-            expect(() => {
-              serverlessly
-                .on('ERROR', errorListener)
-                .getHandler({ platformAdapter });
-            }).toThrow(new Error());
-
-            expect(errorListener).toBeCalledWith(
-              new Error('No Middleware Found')
-            );
-          }
-        );
-
-        hTest('getHandler() returns correct handler', () => {
-          const handlerResult = serverlessly
-            .pipe(middlewares[0], middlewares[1])
-            .getHandler({ platformAdapter })('Hulk Says:');
-
-          if (handlerResult instanceof Promise) {
-            expect(handlerResult).resolves.toBe('Hulk Says: Hulk Smash');
-          } else {
-            expect(handlerResult).toBe('Hulk Says: Hulk Smash');
-          }
-        });
-
-        hTest(
-          'getHandler() emits logs twice when it encounters no error',
-          () => {
-            serverlessly
-              .pipe(() => 'Foo')
-              .on('LOG', logsListener)
-              .getHandler({ platformAdapter });
-
-            expect(logsListener).toBeCalledTimes(2);
-          }
-        );
-
-        hTest(
-          'getHandler() emits correct logs when it encounters no error',
-          () => {
-            serverlessly
-              .pipe(middlewares[0], middlewares[1])
-              .on('LOG', logsListener)
-              .getHandler({ platformAdapter });
-
-            expect(logsListener).nthCalledWith(
-              1,
-              'getHandler: 2 middlewares found'
-            );
-
-            if (platformAdapter) {
-              expect(logsListener).nthCalledWith(
-                2,
-                'getHandler: Platform Adapter found'
-              );
-            } else {
-              expect(logsListener).nthCalledWith(
-                2,
-                'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
-              );
-            }
-          }
-        );
-
-        test.todo('getHandler() does not emit logs if no middleware is found');
-
-        mfTest(
-          'getHandler() throws error if middlewareEngine throws or encounters error',
-          () => {
-            expect(() => {
-              new Serverlessly({ middlewareEngine })
-                .pipe(() => 'Foo')
-                .getHandler({
-                  platformAdapter,
-                });
-            }).toThrowError();
-          }
-        );
-
-        mfTest(
-          'getHandler() throws correct error if middlewareEngine throws or encounters error & there is no ERROR event listener attached',
-          () => {
-            expect(() => {
-              new Serverlessly({ middlewareEngine })
-                .pipe(() => 'Foo')
-                .getHandler({
-                  platformAdapter,
-                });
-            }).toThrow(
-              new Error(
-                'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
-              )
-            );
-          }
-        );
-
-        mfTest(
-          'getHandler() throws and emits correct error if middlewareEngine throws or encounters error & there is an ERROR event listener attached',
-          () => {
-            expect(() => {
-              new Serverlessly({ middlewareEngine })
-                .on('ERROR', errorListener)
-                .pipe(() => 'Foo')
-                .getHandler({ platformAdapter });
-            }).toThrow(new Error());
-
-            expect(errorListener).toBeCalledWith(
-              new Error(
-                'Faulty Middleware Engine\nRangeError: Invalid array length'
-              )
-            );
-          }
-        );
-
-        test.todo(
-          'getHandler() emits log only once if middlewareEngine throws or encounters error'
-        );
-
-        pfTest(
-          'getHandler() throws error if platformAdapter throws or encounters error',
-          () => {
-            expect(() => {
-              serverlessly
-                .pipe(() => 'Foo')
-                .getHandler({
-                  platformAdapter,
-                });
-            }).toThrowError();
-          }
-        );
-
-        pfTest(
-          'getHandler() throws correct error if platformAdapter throws or encounters error & there is no ERROR event listener attached',
-          () => {
-            expect(() => {
-              serverlessly
-                .pipe(() => 'Foo')
-                .getHandler({
-                  platformAdapter,
-                });
-            }).toThrow(
-              new Error(
-                'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
-              )
-            );
-          }
-        );
-
-        pfTest(
-          'getHandler() throws and emits correct error if platformAdapter throws or encounters error & there is an ERROR event listener attached',
-          () => {
-            expect(() => {
-              serverlessly
-                .on('ERROR', errorListener)
-                .pipe(() => 'Foo')
-                .getHandler({ platformAdapter });
-            }).toThrow(new Error());
-
-            expect(errorListener).toBeCalledWith(
-              new Error(
-                'Faulty Platform Adapter\nRangeError: Invalid array length'
-              )
-            );
-          }
-        );
-
-        test.todo(
-          'getHandler() emits log twice if platformAdapter throws or encounters error'
-        );
-
-        fTest(
-          'getHandler() throws error if both middlewareEngine and platformAdapter throws or encounters error',
-          () => {
-            expect(() => {
-              new Serverlessly({ middlewareEngine })
-                .pipe(() => 'Foo')
-                .getHandler({
-                  platformAdapter,
-                });
-            }).toThrowError();
-          }
-        );
-
-        fTest(
-          'getHandler() throws correct error if both middlewareEngine and platformAdapter throws or encounters error & there is no ERROR event listener attached',
-          () => {
-            expect(() => {
-              new Serverlessly({ middlewareEngine })
-                .pipe(() => 'Foo')
-                .getHandler({
-                  platformAdapter,
-                });
-            }).toThrow(
-              new Error(
-                'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
-              )
-            );
-          }
-        );
-
-        fTest(
-          'getHandler() throws and emits correct error if both middlewareEngine and platformAdapter throws or encounters error & there is an ERROR event listener attached',
-          () => {
-            expect(() => {
-              new Serverlessly({ middlewareEngine })
-                .on('ERROR', errorListener)
-                .pipe(() => 'Foo')
-                .getHandler({
-                  platformAdapter,
-                });
-            }).toThrow(new Error());
-
-            expect(errorListener).toBeCalledWith(
-              new Error(
-                'Faulty Middleware Engine\nRangeError: Invalid array length'
-              )
-            );
-          }
-        );
-
-        test.todo(
-          'getHandler() emits log only once if both middlewareEngine and platformAdapter throws or encounters error'
-        );
-      }
+  test('pipe() returns same Serverlessly instance', () => {
+    expect(serverlessly.pipe(middlewares[0], ...middlewares.slice(1))).toBe(
+      serverlessly
     );
-  }
-);
+  });
+
+  test('multiple pipe() methods can be chained', () => {
+    expect(() => {
+      serverlessly.pipe(middlewares[0]).pipe(middlewares[1]);
+    }).not.toThrowError();
+  });
+
+  test('pipe() properly updates internal state', () => {
+    expect(
+      serverlessly
+        .pipe(middlewares[0])
+        .pipe(middlewares[1])
+        .pipe(middlewares[2], middlewares[3]).middlewares
+    ).toStrictEqual(middlewares);
+  });
+
+  describe('Events emitted by pipe()', () => {
+    test('Events are emitted', () => {
+      serverlessly
+        .on('LOG', logsListener)
+        .on('NEW_MIDDLEWARES', newMiddlewaresListener)
+        .on('MIDDLEWARES', middlewaresListener)
+        .pipe(middlewares[0]);
+      expect(logsListener).toBeCalled();
+      expect(newMiddlewaresListener).toBeCalled();
+      expect(middlewaresListener).toBeCalled();
+    });
+
+    test('events are emitted n times for n pipe methods', () => {
+      const app = serverlessly
+        .on('LOG', logsListener)
+        .on('NEW_MIDDLEWARES', newMiddlewaresListener)
+        .on('MIDDLEWARES', middlewaresListener);
+      expect(logsListener).toBeCalledTimes(0);
+      expect(newMiddlewaresListener).toBeCalledTimes(0);
+      expect(middlewaresListener).toBeCalledTimes(0);
+
+      app.pipe(middlewares[0]).pipe(middlewares[1]);
+      expect(logsListener).toBeCalledTimes(2);
+      expect(newMiddlewaresListener).toBeCalledTimes(2);
+      expect(middlewaresListener).toBeCalledTimes(2);
+
+      app.pipe(middlewares[2]);
+      expect(logsListener).toBeCalledTimes(3);
+      expect(newMiddlewaresListener).toBeCalledTimes(3);
+      expect(middlewaresListener).toBeCalledTimes(3);
+
+      app.pipe(middlewares[3]).pipe(middlewares[0]);
+      expect(logsListener).toBeCalledTimes(5);
+      expect(newMiddlewaresListener).toBeCalledTimes(5);
+      expect(middlewaresListener).toBeCalledTimes(5);
+    });
+
+    test('correct events are emitted', () => {
+      const app = serverlessly
+        .on('LOG', logsListener)
+        .on('NEW_MIDDLEWARES', newMiddlewaresListener)
+        .on('MIDDLEWARES', middlewaresListener)
+        .pipe(middlewares[0], middlewares[1]);
+      expect(logsListener).toBeCalledWith(
+        'pipe: 2 middlewares registered (new global middlewares count: 2)'
+      );
+      expect(newMiddlewaresListener).toBeCalledWith([
+        middlewares[0],
+        middlewares[1],
+      ]);
+      expect(middlewaresListener).toBeCalledWith([
+        middlewares[0],
+        middlewares[1],
+      ]);
+
+      app.pipe(middlewares[2]);
+      expect(logsListener).lastCalledWith(
+        'pipe: 1 middleware registered (new global middlewares count: 3)'
+      );
+      expect(newMiddlewaresListener).lastCalledWith([middlewares[2]]);
+      expect(middlewaresListener).lastCalledWith([
+        middlewares[0],
+        middlewares[1],
+        middlewares[2],
+      ]);
+
+      app.pipe(middlewares[3]);
+      expect(logsListener).lastCalledWith(
+        'pipe: 1 middleware registered (new global middlewares count: 4)'
+      );
+      expect(newMiddlewaresListener).lastCalledWith([middlewares[3]]);
+      expect(middlewaresListener).lastCalledWith([
+        middlewares[0],
+        middlewares[1],
+        middlewares[2],
+        middlewares[3],
+      ]);
+    });
+  });
+});
+
+describe('getHandler() Tests', () => {
+  let serverlessly: ServerlesslySync;
+
+  let logsListener: jest.Mock;
+  let errorListener: jest.Mock;
+
+  let protocolPlatformAdapterFactorySpy: jest.SpyInstance;
+  let validateMiddlewareSpy: jest.SpyInstance<void, [middlewares: unknown[]]>;
+  let getCoreCodeFactorySpy: jest.SpyInstance<
+    unknown,
+    [
+      middlewareEngine: MiddlewareEngine<unknown, unknown>,
+      middlewares: unknown[]
+    ]
+  >;
+  let computeHandlerSpy: jest.SpyInstance<
+    unknown,
+    [
+      platformAdapter: PlatformAdapter<unknown, unknown>,
+      hydratedProtocol: unknown
+    ]
+  >;
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      middlewareEngine,
+    });
+
+    logsListener = jest.fn();
+    errorListener = jest.fn();
+
+    protocolPlatformAdapterFactorySpy = jest.spyOn(
+      protocolPlatformAdapterFactory,
+      'protocolPlatformAdapterFactory'
+    );
+
+    validateMiddlewareSpy = jest.spyOn(
+      validateMiddleware,
+      'validateMiddlewares'
+    );
+    getCoreCodeFactorySpy = jest.spyOn(coreCodeFactory, 'getCoreCodeFactory');
+    computeHandlerSpy = jest.spyOn(computeHandler, 'computeHandler');
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('getHandler() calls protocolPlatformAdapterFactory() once if no Platform Adapter is available', () => {
+    serverlessly.pipe(middlewares[0]).getHandler();
+    expect(protocolPlatformAdapterFactorySpy).toBeCalledTimes(1);
+  });
+
+  test('getHandler() calls validateMiddleware() once', () => {
+    serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+    expect(validateMiddlewareSpy).toBeCalledTimes(1);
+  });
+
+  test('getHandler() calls validateMiddleware() with correct argument', () => {
+    serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+    expect(validateMiddlewareSpy).toBeCalledWith([middlewares[0]]);
+  });
+
+  describe('if validateMiddleware() throws', () => {
+    beforeEach(() => {
+      validateMiddlewareSpy.mockImplementationOnce(() => {
+        throw new Error('Dummy Error');
+      });
+    });
+
+    test('getHandler() throws', () => {
+      expect(() => {
+        serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+      }).toThrow();
+    });
+
+    test('getHandler() throws correct error if no ERROR listener is attached', () => {
+      expect(() => {
+        serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+      }).toThrow(
+        new Error(
+          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+        )
+      );
+    });
+
+    test('getHandler() throws & emits correct error if ERROR listener is attached', () => {
+      expect(() => {
+        serverlessly
+          .on('ERROR', errorListener)
+          .pipe(middlewares[0])
+          .getHandler({ platformAdapter });
+      }).toThrow(new Error());
+
+      expect(errorListener).toBeCalledWith(new Error('Dummy Error'));
+    });
+
+    test('getHandler() does not emit logs', () => {
+      try {
+        serverlessly
+          .pipe(middlewares[0])
+          .on('LOG', logsListener)
+          .getHandler({ platformAdapter });
+      } catch (error) {}
+
+      expect(logsListener).not.toBeCalled();
+    });
+
+    test('getHandler() does not call getCoreCodeFactory() or computeHandler()', () => {
+      try {
+        serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+      } catch (error) {}
+
+      expect(getCoreCodeFactorySpy).not.toBeCalled();
+      expect(computeHandlerSpy).not.toBeCalled();
+    });
+  });
+
+  describe('if validateMiddlewares() does not throw', () => {
+    beforeEach(() => {
+      validateMiddlewareSpy.mockImplementationOnce(() => {
+        return;
+      });
+    });
+
+    test('getHandler() calls getCoreCodeFactory() once', () => {
+      serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+      expect(getCoreCodeFactorySpy).toBeCalledTimes(1);
+    });
+
+    test('getHandler() calls getCoreCodeFactory() with correct argument', () => {
+      serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+      expect(getCoreCodeFactorySpy).toBeCalledWith(middlewareEngine, [
+        middlewares[0],
+      ]);
+    });
+
+    test('getHandler() emits logs once', () => {
+      serverlessly
+        .pipe(middlewares[0])
+        .on('LOG', logsListener)
+        .getHandler({ platformAdapter });
+
+      expect(logsListener).toBeCalledTimes(1);
+    });
+
+    test('getHandler() emits correct logs', () => {
+      const app = serverlessly.pipe(middlewares[0]);
+
+      app.on('LOG', logsListener).getHandler({ platformAdapter });
+      expect(logsListener).toBeCalledWith('getHandler: 1 middleware found');
+
+      app.pipe(middlewares[1]);
+      app.on('LOG', logsListener).getHandler({ platformAdapter });
+      expect(logsListener).lastCalledWith('getHandler: 2 middlewares found');
+    });
+
+    describe('if getCoreCodeFactory() throws', () => {
+      beforeEach(() => {
+        getCoreCodeFactorySpy.mockImplementationOnce(() => {
+          throw new Error('Dummy Error');
+        });
+      });
+
+      test('getHandler() throws', () => {
+        expect(() => {
+          serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+        }).toThrow();
+      });
+
+      test('getHandler() throws correct error if no ERROR listener is attached', () => {
+        expect(() => {
+          serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+        }).toThrow(
+          new Error(
+            'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+          )
+        );
+      });
+
+      test('getHandler() throws & emits correct error if ERROR listener is attached', () => {
+        expect(() => {
+          serverlessly
+            .on('ERROR', errorListener)
+            .pipe(middlewares[0])
+            .getHandler({ platformAdapter });
+        }).toThrow(new Error());
+
+        expect(errorListener).toBeCalledWith(new Error('Dummy Error'));
+      });
+
+      test('getHandler() does not call computeHandler()', () => {
+        try {
+          serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+        } catch (error) {}
+
+        expect(computeHandlerSpy).not.toBeCalled();
+      });
+    });
+
+    describe('if getCoreCodeFactory() does not throw', () => {
+      beforeEach(() => {
+        getCoreCodeFactorySpy.mockImplementationOnce(() => {
+          return 'Foo';
+        });
+      });
+
+      test('getHandler() calls computeHandler() once', () => {
+        serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+        expect(computeHandlerSpy).toBeCalledTimes(1);
+      });
+
+      test('getHandler() calls computeHandler() with correct argument', () => {
+        serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+        expect(computeHandlerSpy).toBeCalledWith(platformAdapter, 'Foo');
+      });
+
+      describe('if computeHandler() throws', () => {
+        beforeEach(() => {
+          computeHandlerSpy.mockImplementationOnce(() => {
+            throw new Error('Dummy Error');
+          });
+        });
+
+        test('getHandler() throws', () => {
+          expect(() => {
+            serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+          }).toThrow();
+        });
+
+        test('getHandler() throws correct error if no ERROR listener is attached', () => {
+          expect(() => {
+            serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+          }).toThrow(
+            new Error(
+              'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+            )
+          );
+        });
+
+        test('getHandler() throws & emits correct error if ERROR listener is attached', () => {
+          expect(() => {
+            serverlessly
+              .on('ERROR', errorListener)
+              .pipe(middlewares[0])
+              .getHandler({ platformAdapter });
+          }).toThrow(new Error());
+
+          expect(errorListener).toBeCalledWith(new Error('Dummy Error'));
+        });
+      });
+
+      describe('if computeHandler() does not throw', () => {
+        beforeEach(() => {
+          computeHandlerSpy.mockImplementationOnce(() => {
+            return 'Foo';
+          });
+        });
+
+        test('getHandler() does not throw', () => {
+          expect(() => {
+            serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
+          }).not.toThrow();
+        });
+
+        test('getHandler() returns the same value returned by computeHandler()', () => {
+          expect(
+            serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter })
+          ).toBe('Foo');
+        });
+      });
+    });
+  });
+});

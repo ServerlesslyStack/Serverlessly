@@ -1,7 +1,12 @@
 import { EventEmitter } from 'events';
-import { ServerlesslyAPI } from './api';
-import { HandlerProps } from './handler';
 import { MiddlewareEngine } from './middleware-engine';
+import {
+  PlatformAdapter,
+  protocolPlatformAdapterFactory,
+} from './platform-adapter';
+import { validateMiddlewares } from './helpers/validate-middlewares';
+import { getCoreCodeFactory } from './helpers/core-code-factory';
+import { computeHandler } from './helpers/compute-handler';
 
 export type ServerlesslyLogsEvent = 'LOG';
 export type ServerlesslyErrorEvent = 'ERROR';
@@ -90,9 +95,11 @@ export interface ServerlesslyProps<TProtocol, TMiddleware> {
   middlewareEngine: MiddlewareEngine<TProtocol, TMiddleware>;
 }
 
-export class Serverlessly<TProtocol, TMiddleware>
-  extends EventEmitter
-  implements ServerlesslyAPI<TProtocol, TMiddleware> {
+export interface HandlerProps<TProtocol, THandler> {
+  platformAdapter: PlatformAdapter<TProtocol, THandler>;
+}
+
+export class Serverlessly<TProtocol, TMiddleware> extends EventEmitter {
   readonly middlewareEngine: MiddlewareEngine<TProtocol, TMiddleware>;
   middlewares: TMiddleware[] = [];
 
@@ -105,7 +112,7 @@ export class Serverlessly<TProtocol, TMiddleware>
     this.middlewares.push(...middleware);
     this.emit(
       'LOG',
-      `Pipe: ${middleware.length} ${
+      `pipe: ${middleware.length} ${
         middleware.length === 1 ? 'middleware' : 'middlewares'
       } registered (new global middlewares count: ${this.middlewares.length})`
     );
@@ -115,50 +122,27 @@ export class Serverlessly<TProtocol, TMiddleware>
   }
 
   getHandler<THandler = TProtocol>(
-    props?: HandlerProps<TProtocol, THandler>
-  ): THandler | TProtocol {
-    let hydratedProtocol: TProtocol;
-
-    if (this.middlewares.length) {
+    props: HandlerProps<TProtocol, THandler> = {
+      platformAdapter: (protocolPlatformAdapterFactory() as unknown) as PlatformAdapter<
+        TProtocol,
+        THandler
+      >,
+    }
+  ): THandler {
+    try {
+      validateMiddlewares(this.middlewares);
       this.emit(
         'LOG',
         `getHandler: ${this.middlewares.length} ${
           this.middlewares.length === 1 ? 'middleware' : 'middlewares'
         } found`
       );
-
-      try {
-        hydratedProtocol = this.middlewareEngine(this.middlewares);
-      } catch (error) {
-        this.emit('ERROR', new Error(`Faulty Middleware Engine\n${error}`));
-        throw new Error(
-          `${
-            this.listenerCount('ERROR')
-              ? ''
-              : 'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
-          }`
-        );
-      }
-    } else {
-      this.emit('ERROR', new Error('No Middleware Found'));
-      throw new Error(
-        `${this.listenerCount('ERROR') ? '' : 'No Middleware Found'}`
+      return computeHandler(
+        props.platformAdapter,
+        getCoreCodeFactory(this.middlewareEngine, this.middlewares)
       );
-    }
-
-    try {
-      if (props?.platformAdapter) {
-        this.emit('LOG', 'getHandler: Platform Adapter found');
-        return props.platformAdapter(hydratedProtocol);
-      } else {
-        this.emit(
-          'LOG',
-          'getHandler: Platform Adapter not found.. using default protocol adapter provided by Middleware Engine'
-        );
-        return hydratedProtocol;
-      }
     } catch (error) {
-      this.emit('ERROR', new Error(`Faulty Platform Adapter\n${error}`));
+      this.emit('ERROR', error);
       throw new Error(
         `${
           this.listenerCount('ERROR')
