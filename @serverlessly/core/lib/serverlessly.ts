@@ -1,9 +1,6 @@
 import { EventEmitter } from 'events';
 import { MiddlewareEngine } from './middleware-engine';
-import {
-  PlatformAdapter,
-  protocolPlatformAdapterFactory,
-} from './platform-adapter';
+import { PlatformAdapter, protocolPlatformAdapter } from './platform-adapter';
 import { validateMiddlewares } from './helpers/validate-middlewares';
 import { getCoreCodeFactory } from './helpers/core-code-factory';
 import { computeHandler } from './helpers/compute-handler';
@@ -123,10 +120,9 @@ export class Serverlessly<TProtocol, TMiddleware> extends EventEmitter {
 
   getHandler<THandler = TProtocol>(
     props: HandlerProps<TProtocol, THandler> = {
-      platformAdapter: (protocolPlatformAdapterFactory() as unknown) as PlatformAdapter<
-        TProtocol,
-        THandler
-      >,
+      platformAdapter: <PlatformAdapter<TProtocol, THandler>>(
+        protocolPlatformAdapter
+      ),
     }
   ): THandler {
     try {

@@ -4,7 +4,7 @@ import {
   PlatformAdapter,
   Serverlessly,
 } from '@serverlessly/core';
-import * as protocolPlatformAdapterFactory from '../lib/platform-adapter';
+import { protocolPlatformAdapter } from '../lib/platform-adapter';
 import * as validateMiddleware from '../lib/helpers/validate-middlewares';
 import * as coreCodeFactory from '../lib/helpers/core-code-factory';
 import * as computeHandler from '../lib/helpers/compute-handler';
@@ -158,7 +158,6 @@ describe('getHandler() Tests', () => {
   let logsListener: jest.Mock;
   let errorListener: jest.Mock;
 
-  let protocolPlatformAdapterFactorySpy: jest.SpyInstance;
   let validateMiddlewareSpy: jest.SpyInstance<void, [middlewares: unknown[]]>;
   let getCoreCodeFactorySpy: jest.SpyInstance<
     unknown,
@@ -183,11 +182,6 @@ describe('getHandler() Tests', () => {
     logsListener = jest.fn();
     errorListener = jest.fn();
 
-    protocolPlatformAdapterFactorySpy = jest.spyOn(
-      protocolPlatformAdapterFactory,
-      'protocolPlatformAdapterFactory'
-    );
-
     validateMiddlewareSpy = jest.spyOn(
       validateMiddleware,
       'validateMiddlewares'
@@ -198,11 +192,6 @@ describe('getHandler() Tests', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  test('getHandler() calls protocolPlatformAdapterFactory() once if no Platform Adapter is available', () => {
-    serverlessly.pipe(middlewares[0]).getHandler();
-    expect(protocolPlatformAdapterFactorySpy).toBeCalledTimes(1);
   });
 
   test('getHandler() calls validateMiddleware() once', () => {
@@ -367,6 +356,14 @@ describe('getHandler() Tests', () => {
       test('getHandler() calls computeHandler() with correct argument', () => {
         serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
         expect(computeHandlerSpy).toBeCalledWith(platformAdapter, 'Foo');
+      });
+
+      test('getHandler() uses protocolPlatformAdapter if no Platform Adapter is available', () => {
+        serverlessly.pipe(middlewares[0]).getHandler();
+        expect(computeHandlerSpy).toBeCalledWith(
+          protocolPlatformAdapter,
+          'Foo'
+        );
       });
 
       describe('if computeHandler() throws', () => {

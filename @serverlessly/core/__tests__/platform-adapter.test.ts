@@ -1,12 +1,6 @@
-import { protocolPlatformAdapterFactory } from '@serverlessly/core';
+import { protocolPlatformAdapter } from '@serverlessly/core';
 
-test('protocolPlatformAdapterFactory() does not throw error', () => {
-  expect(() => {
-    protocolPlatformAdapterFactory();
-  }).not.toThrow();
-});
-
-test('protocolPlatformAdapterFactory() returns a passthrough Platform Adapter', () => {
+test('protocolPlatformAdapter is a passthrough Platform Adapter', () => {
   const foo = () => 'Foo';
-  expect(protocolPlatformAdapterFactory()(foo)).toBe(foo);
+  expect(protocolPlatformAdapter(foo)).toBe(foo);
 });

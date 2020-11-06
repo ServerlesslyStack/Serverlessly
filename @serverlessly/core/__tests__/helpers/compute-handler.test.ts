@@ -1,4 +1,4 @@
-import { PlatformAdapter } from '@serverlessly/core';
+import { PlatformAdapter, protocolPlatformAdapter } from '@serverlessly/core';
 import { computeHandler } from '@serverlessly/core/lib/helpers/compute-handler';
 import {
   dummyPlatformAdapterSyncOrAsyncStrict,
@@ -26,6 +26,7 @@ type TestCase = [
 ];
 
 const healthyTestCases: TestCase[] = [
+  ['protocolPlatformAdapter', protocolPlatformAdapter],
   [
     'dummyPlatformAdapterSyncOrAsyncStrict',
     dummyPlatformAdapterSyncOrAsyncStrict,
