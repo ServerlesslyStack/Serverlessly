@@ -97,8 +97,8 @@ export interface HandlerProps<TProtocol, THandler> {
 }
 
 export class Serverlessly<TProtocol, TMiddleware> extends EventEmitter {
-  readonly middlewareEngine: MiddlewareEngine<TProtocol, TMiddleware>;
-  middlewares: TMiddleware[] = [];
+  protected readonly middlewareEngine: MiddlewareEngine<TProtocol, TMiddleware>;
+  protected middlewares: TMiddleware[] = [];
 
   constructor(props: ServerlesslyProps<TProtocol, TMiddleware>) {
     super();

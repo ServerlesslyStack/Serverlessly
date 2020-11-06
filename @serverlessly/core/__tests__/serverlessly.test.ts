@@ -67,7 +67,7 @@ describe('pipe() Tests', () => {
       serverlessly
         .pipe(middlewares[0])
         .pipe(middlewares[1])
-        .pipe(middlewares[2], middlewares[3]).middlewares
+        .pipe(middlewares[2], middlewares[3])['middlewares']
     ).toStrictEqual(middlewares);
   });
 
