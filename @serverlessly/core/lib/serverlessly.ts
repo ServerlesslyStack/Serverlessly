@@ -1,16 +1,27 @@
 import { EventEmitter } from 'events';
 import { MiddlewareEngine } from './middleware-engine';
-import { PlatformAdapter, protocolPlatformAdapter } from './platform-adapter';
+import { PlatformAdapter } from './platform-adapter';
 import { validateMiddlewares } from './helpers/validate-middlewares';
-import { getCoreCodeFactory } from './helpers/core-code-factory';
-import { computeHandler } from './helpers/compute-handler';
+import { getProtocolRequestHandler } from './helpers/protocol-request-handler';
+import { getPlatformHandler } from './helpers/platform-handler';
+import {
+  Protocol,
+  ProtocolServerAdapter,
+  protocolServerAdapter,
+  ProtocolServerFactory,
+} from './protocol';
 
 export type ServerlesslyLogsEvent = 'LOG';
 export type ServerlesslyErrorEvent = 'ERROR';
 export type ServerlesslyMiddlewaresEvent = 'MIDDLEWARES' | 'NEW_MIDDLEWARES';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface Serverlessly<TProtocol, TMiddleware> {
+export interface Serverlessly<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TProtocolRequestHandler,
+  TMiddleware,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TProtocolServer
+> {
   emit(event: ServerlesslyLogsEvent, log: string): boolean;
   emit(event: ServerlesslyErrorEvent, error: Error): boolean;
   emit(
@@ -88,21 +99,45 @@ export interface Serverlessly<TProtocol, TMiddleware> {
   removeAllListeners(event?: ServerlesslyMiddlewaresEvent): this;
 }
 
-export interface ServerlesslyProps<TProtocol, TMiddleware> {
-  middlewareEngine: MiddlewareEngine<TProtocol, TMiddleware>;
+export interface ServerlesslyProps<
+  TProtocolRequestHandler,
+  TMiddleware,
+  TProtocolServer
+> {
+  protocol: Protocol<TProtocolRequestHandler, TMiddleware, TProtocolServer>;
+  middlewareEngine?: MiddlewareEngine<TProtocolRequestHandler, TMiddleware>;
 }
 
-export interface HandlerProps<TProtocol, THandler> {
-  platformAdapter: PlatformAdapter<TProtocol, THandler>;
+export interface HandlerProps<TProtocolRequestHandler, TPlatformHandler> {
+  platformAdapter: PlatformAdapter<TProtocolRequestHandler, TPlatformHandler>;
 }
 
-export class Serverlessly<TProtocol, TMiddleware> extends EventEmitter {
-  protected readonly middlewareEngine: MiddlewareEngine<TProtocol, TMiddleware>;
+export class Serverlessly<
+  TProtocolRequestHandler,
+  TMiddleware,
+  TProtocolServer
+> extends EventEmitter {
+  protected readonly middlewareEngine: MiddlewareEngine<
+    TProtocolRequestHandler,
+    TMiddleware
+  >;
+  protected readonly protocolServerFactory: ProtocolServerFactory<
+    TProtocolRequestHandler,
+    TProtocolServer
+  >;
   protected middlewares: TMiddleware[] = [];
 
-  constructor(props: ServerlesslyProps<TProtocol, TMiddleware>) {
+  constructor(
+    props: ServerlesslyProps<
+      TProtocolRequestHandler,
+      TMiddleware,
+      TProtocolServer
+    >
+  ) {
     super();
-    this.middlewareEngine = props.middlewareEngine;
+    this.middlewareEngine =
+      props.middlewareEngine || props.protocol.defaultMiddlewareEngine;
+    this.protocolServerFactory = props.protocol.serverFactory;
   }
 
   pipe(...middleware: [TMiddleware, ...TMiddleware[]]): this {
@@ -118,13 +153,9 @@ export class Serverlessly<TProtocol, TMiddleware> extends EventEmitter {
     return this;
   }
 
-  getHandler<THandler = TProtocol>(
-    props: HandlerProps<TProtocol, THandler> = {
-      platformAdapter: <PlatformAdapter<TProtocol, THandler>>(
-        protocolPlatformAdapter
-      ),
-    }
-  ): THandler {
+  getHandler<TPlatformHandler>(
+    props: HandlerProps<TProtocolRequestHandler, TPlatformHandler>
+  ): TPlatformHandler {
     try {
       validateMiddlewares(this.middlewares);
       this.emit(
@@ -133,9 +164,9 @@ export class Serverlessly<TProtocol, TMiddleware> extends EventEmitter {
           this.middlewares.length === 1 ? 'middleware' : 'middlewares'
         } found`
       );
-      return computeHandler(
+      return getPlatformHandler(
         props.platformAdapter,
-        getCoreCodeFactory(this.middlewareEngine, this.middlewares)
+        getProtocolRequestHandler(this.middlewareEngine, this.middlewares)
       );
     } catch (error) {
       this.emit('ERROR', error);
@@ -147,5 +178,19 @@ export class Serverlessly<TProtocol, TMiddleware> extends EventEmitter {
         }`
       );
     }
+  }
+
+  getServer(): TProtocolServer {
+    return this.getHandler({
+      platformAdapter: this.protocolServerFactory,
+    });
+  }
+
+  getProtocolRequestHandler(): TProtocolRequestHandler {
+    return this.getHandler({
+      platformAdapter: <ProtocolServerAdapter<TProtocolRequestHandler>>(
+        protocolServerAdapter
+      ),
+    });
   }
 }

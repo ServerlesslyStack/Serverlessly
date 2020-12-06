@@ -1,97 +1,421 @@
 import { Serverlessly } from '@serverlessly/core';
 import {
-  DummyHandlerAsync,
-  DummyHandlerSync,
-  DummyHandlerSyncOrAsync,
-  dummyMiddlewareEngineAsync,
-  dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
-  dummyMiddlewareEngineSync,
-  dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
-  dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
-  dummyMiddlewareEngineSyncOrAsync,
-  dummyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol,
   dummyMiddlewaresAsync,
   dummyMiddlewaresSync,
   dummyMiddlewaresSyncOrAsync,
+} from './dummies/middlewares';
+import {
+  dummyPlatformAdapter01,
+  dummyPlatformAdapter02,
+  dummyPlatformAdapter12,
+  dummyPlatformAdapter21,
   dummyPlatformAdapterAsync,
-  dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-  dummyPlatformAdapterAsyncHandlerToSyncProtocol,
   dummyPlatformAdapterSync,
   dummyPlatformAdapterSyncOrAsync,
-  dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
-  dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol,
   dummyPlatformAdapterSyncOrAsyncStrict,
-  DummyProtocolAsync,
-  DummyProtocolSync,
-  DummyProtocolSyncOrAsync,
+} from './dummies/platform-adapters';
+import {
+  DummyPlatformHandlerAsync,
+  DummyPlatformHandlerSyncOrAsync,
+} from './dummies/platform-handlers';
+import {
+  DummyProtocolRequestHandlerAsync,
+  DummyProtocolRequestHandlerSync,
+  DummyProtocolRequestHandlerSyncOrAsync,
+} from './dummies/protocol-request-handlers';
+import {
+  DummyProtocolServerAsync,
+  DummyProtocolServerSync,
+  DummyProtocolServerSyncOrAsync,
+} from './dummies/protocol-servers';
+import {
+  dummyProtocol001,
+  dummyProtocol002,
+  dummyProtocol101,
+  dummyProtocol102,
+  dummyProtocol112,
+  dummyProtocol121,
+  dummyProtocol122,
+  dummyProtocol201,
+  dummyProtocol202,
+  dummyProtocol211,
+  dummyProtocol212,
+  dummyProtocol221,
+  dummyProtocolAsync,
+  dummyProtocolSync,
+  dummyProtocolSyncOrAsync,
+} from './dummies/protocols';
+import {
+  Serverlessly001,
+  Serverlessly002,
+  Serverlessly101,
+  Serverlessly102,
+  Serverlessly112,
+  Serverlessly121,
+  Serverlessly122,
+  Serverlessly201,
+  Serverlessly202,
+  Serverlessly211,
+  Serverlessly212,
+  Serverlessly221,
   ServerlesslyAsync,
-  ServerlesslyAsyncProtocolWithSyncMiddlewares,
-  ServerlesslyAsyncProtocolWithSyncOrAsyncMiddlewares,
   ServerlesslySync,
   ServerlesslySyncOrAsync,
-  ServerlesslySyncOrAsyncProtocolWithAsyncMiddlewares,
-  ServerlesslySyncOrAsyncProtocolWithSyncMiddlewares,
-} from './dummies';
+} from './dummies/serverlessly';
 
 describe('ServerlesslySync', () => {
   test('Serverlessly instance has correct type', () => {
     expect<ServerlesslySync>(
       new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSync,
+        protocol: dummyProtocolSync,
       })
     );
   });
 
   let serverlessly: ServerlesslySync;
+  const dummyMiddleware = dummyMiddlewaresSync[0];
 
   beforeEach(() => {
     serverlessly = new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineSync,
+      protocol: dummyProtocolSync,
     });
   });
 
   test('pipe() returns correct type.', () => {
-    expect<ServerlesslySync>(serverlessly.pipe(dummyMiddlewaresSync[0]));
+    expect<ServerlesslySync>(serverlessly.pipe(dummyMiddleware));
   });
 
   test('getHandler() with every Platform Adapter returns correct type', () => {
     /**
      * Following Platform Adapters are not incompatible with protocol:
      * dummyPlatformAdapterAsync
-     * dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol
+     * dummyPlatformAdapter12
      */
-    expect<DummyProtocolSync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler()
-    );
-    expect<DummyHandlerSync>(
+    expect<DummyProtocolRequestHandlerSync>(
       serverlessly
-        .pipe(dummyMiddlewaresSync[0])
+        .pipe(dummyMiddleware)
         .getHandler({ platformAdapter: dummyPlatformAdapterSync })
     );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncProtocol,
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapter01,
       })
     );
-    expect<DummyHandlerSyncOrAsync>(
+    expect<DummyPlatformHandlerSyncOrAsync>(
       serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict })
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter02 })
     );
-    expect<DummyHandlerSyncOrAsync>(
+    expect<DummyPlatformHandlerAsync>(
       serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync })
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
     );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol,
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
       })
     );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
       })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly001', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly001>(
+      new Serverlessly({
+        protocol: dummyProtocol001,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly001;
+  const dummyMiddleware = dummyMiddlewaresSync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol001,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly001>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterAsync
+     * dummyPlatformAdapter12
+     */
+    expect<DummyProtocolRequestHandlerSync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSync })
+    );
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapter01,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter02 })
+    );
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly002', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly002>(
+      new Serverlessly({
+        protocol: dummyProtocol002,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly002;
+  const dummyMiddleware = dummyMiddlewaresSync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol002,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly002>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterAsync
+     * dummyPlatformAdapter12
+     */
+    expect<DummyProtocolRequestHandlerSync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterSync })
+    );
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapter01,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter02 })
+    );
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly101', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly101>(
+      new Serverlessly({
+        protocol: dummyProtocol101,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly101;
+  const dummyMiddleware = dummyMiddlewaresSync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol101,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly101>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     */
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter12 })
+    );
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly102', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly102>(
+      new Serverlessly({
+        protocol: dummyProtocol102,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly102;
+  const dummyMiddleware = dummyMiddlewaresSync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol102,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly102>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     */
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter12 })
+    );
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
     );
   });
 });
@@ -100,118 +424,579 @@ describe('ServerlesslyAsync', () => {
   test('Serverlessly instance has correct type', () => {
     expect<ServerlesslyAsync>(
       new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineAsync,
+        protocol: dummyProtocolAsync,
       })
     );
   });
 
   let serverlessly: ServerlesslyAsync;
+  const dummyMiddleware = dummyMiddlewaresAsync[0];
 
   beforeEach(() => {
     serverlessly = new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineAsync,
+      protocol: dummyProtocolAsync,
     });
   });
 
   test('pipe() returns correct type.', () => {
-    expect<ServerlesslyAsync>(serverlessly.pipe(dummyMiddlewaresAsync[0]));
+    expect<ServerlesslyAsync>(serverlessly.pipe(dummyMiddleware));
   });
 
   test('getHandler() with every Platform Adapter returns correct type', () => {
     /**
      * Following Platform Adapters are not incompatible with protocol:
      * dummyPlatformAdapterSync
-     * dummyPlatformAdapterAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
      */
-    expect<DummyProtocolAsync>(
-      serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler()
-    );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsync,
-      })
-    );
-    expect<DummyHandlerSyncOrAsync>(
+    expect<DummyPlatformHandlerAsync>(
       serverlessly
-        .pipe(dummyMiddlewaresAsync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict })
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync })
     );
-    expect<DummyHandlerSyncOrAsync>(
+    expect<DummyPlatformHandlerSyncOrAsync>(
       serverlessly
-        .pipe(dummyMiddlewaresAsync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync })
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter12 })
     );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
       })
     );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
       })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
     );
   });
 });
 
-describe('ServerlesslyAsyncProtocolWithSyncMiddlewares', () => {
+describe('Serverlessly112', () => {
   test('Serverlessly instance has correct type', () => {
-    expect<ServerlesslyAsyncProtocolWithSyncMiddlewares>(
+    expect<Serverlessly112>(
       new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+        protocol: dummyProtocol112,
       })
     );
   });
 
-  let serverlessly: ServerlesslyAsyncProtocolWithSyncMiddlewares;
+  let serverlessly: Serverlessly112;
+  const dummyMiddleware = dummyMiddlewaresAsync[0];
 
   beforeEach(() => {
     serverlessly = new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToAsyncProtocol,
+      protocol: dummyProtocol112,
     });
   });
 
   test('pipe() returns correct type.', () => {
-    expect<ServerlesslyAsyncProtocolWithSyncMiddlewares>(
-      serverlessly.pipe(dummyMiddlewaresSync[0])
-    );
+    expect<Serverlessly112>(serverlessly.pipe(dummyMiddleware));
   });
 
   test('getHandler() with every Platform Adapter returns correct type', () => {
     /**
      * Following Platform Adapters are not incompatible with protocol:
      * dummyPlatformAdapterSync
-     * dummyPlatformAdapterAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
      */
-    expect<DummyProtocolAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler()
-    );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsync,
-      })
-    );
-    expect<DummyHandlerSyncOrAsync>(
+    expect<DummyPlatformHandlerAsync>(
       serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict })
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync })
     );
-    expect<DummyHandlerSyncOrAsync>(
+    expect<DummyPlatformHandlerSyncOrAsync>(
       serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync })
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter12 })
     );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
       })
     );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
       })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly121', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly121>(
+      new Serverlessly({
+        protocol: dummyProtocol121,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly121;
+  const dummyMiddleware = dummyMiddlewaresSyncOrAsync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol121,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly121>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     */
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter12 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly122', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly122>(
+      new Serverlessly({
+        protocol: dummyProtocol122,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly122;
+  const dummyMiddleware = dummyMiddlewaresSyncOrAsync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol122,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly122>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     */
+    expect<DummyPlatformHandlerAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapterAsync })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter12 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly201', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly201>(
+      new Serverlessly({
+        protocol: dummyProtocol201,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly201;
+  const dummyMiddleware = dummyMiddlewaresSync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol201,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly201>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     * dummyPlatformAdapterAsync
+     * dummyPlatformAdapter12
+     */
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly202', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly202>(
+      new Serverlessly({
+        protocol: dummyProtocol202,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly202;
+  const dummyMiddleware = dummyMiddlewaresSync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol202,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly202>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     * dummyPlatformAdapterAsync
+     * dummyPlatformAdapter12
+     */
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly211', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly211>(
+      new Serverlessly({
+        protocol: dummyProtocol211,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly211;
+  const dummyMiddleware = dummyMiddlewaresAsync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol211,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly211>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     * dummyPlatformAdapterAsync
+     * dummyPlatformAdapter12
+     */
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly212', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly212>(
+      new Serverlessly({
+        protocol: dummyProtocol212,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly212;
+  const dummyMiddleware = dummyMiddlewaresAsync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol212,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly212>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     * dummyPlatformAdapterAsync
+     * dummyPlatformAdapter12
+     */
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+    );
+  });
+});
+
+describe('Serverlessly221', () => {
+  test('Serverlessly instance has correct type', () => {
+    expect<Serverlessly221>(
+      new Serverlessly({
+        protocol: dummyProtocol221,
+      })
+    );
+  });
+
+  let serverlessly: Serverlessly221;
+  const dummyMiddleware = dummyMiddlewaresSyncOrAsync[0];
+
+  beforeEach(() => {
+    serverlessly = new Serverlessly({
+      protocol: dummyProtocol221,
+    });
+  });
+
+  test('pipe() returns correct type.', () => {
+    expect<Serverlessly221>(serverlessly.pipe(dummyMiddleware));
+  });
+
+  test('getHandler() with every Platform Adapter returns correct type', () => {
+    /**
+     * Following Platform Adapters are not incompatible with protocol:
+     * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
+     * dummyPlatformAdapterAsync
+     * dummyPlatformAdapter12
+     */
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
+    );
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
+      })
+    );
+  });
+
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
+    );
+  });
+
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
     );
   });
 });
@@ -220,220 +1005,59 @@ describe('ServerlesslySyncOrAsync', () => {
   test('Serverlessly instance has correct type', () => {
     expect<ServerlesslySyncOrAsync>(
       new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
+        protocol: dummyProtocolSyncOrAsync,
       })
     );
   });
 
   let serverlessly: ServerlesslySyncOrAsync;
+  const dummyMiddleware = dummyMiddlewaresSyncOrAsync[0];
 
   beforeEach(() => {
     serverlessly = new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
+      protocol: dummyProtocolSyncOrAsync,
     });
   });
 
   test('pipe() returns correct type.', () => {
-    expect<ServerlesslySyncOrAsync>(
-      serverlessly.pipe(
-        dummyMiddlewaresSyncOrAsync[0],
-        dummyMiddlewaresSyncOrAsync[1]
-      )
-    );
+    expect<ServerlesslySyncOrAsync>(serverlessly.pipe(dummyMiddleware));
   });
 
   test('getHandler() with every Platform Adapter returns correct type', () => {
     /**
      * Following Platform Adapters are not incompatible with protocol:
      * dummyPlatformAdapterSync
+     * dummyPlatformAdapter01
+     * dummyPlatformAdapter02
      * dummyPlatformAdapterAsync
-     * dummyPlatformAdapterAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol
+     * dummyPlatformAdapter12
      */
-    expect<DummyProtocolSyncOrAsync>(
+    expect<DummyPlatformHandlerSyncOrAsync>(
       serverlessly
-        .pipe(dummyMiddlewaresSyncOrAsync[0], dummyMiddlewaresSyncOrAsync[1])
-        .getHandler()
+        .pipe(dummyMiddleware)
+        .getHandler({ platformAdapter: dummyPlatformAdapter21 })
     );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresSyncOrAsync[0], dummyMiddlewaresSyncOrAsync[1])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict })
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsync,
+      })
     );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresSyncOrAsync[0], dummyMiddlewaresSyncOrAsync[1])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync })
-    );
-    expect<DummyHandlerAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresSyncOrAsync[0], dummyMiddlewaresSyncOrAsync[1])
-        .getHandler({
-          platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-        })
-    );
-  });
-});
-
-describe('ServerlesslySyncOrAsyncProtocolWithSyncMiddlewares', () => {
-  test('Serverlessly instance has correct type', () => {
-    expect<ServerlesslySyncOrAsyncProtocolWithSyncMiddlewares>(
-      new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
+    expect<DummyPlatformHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getHandler({
+        platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict,
       })
     );
   });
 
-  let serverlessly: ServerlesslySyncOrAsyncProtocolWithSyncMiddlewares;
-
-  beforeEach(() => {
-    serverlessly = new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineSyncMiddlewareToSyncOrAsyncProtocol,
-    });
-  });
-
-  test('pipe() returns correct type.', () => {
-    expect<ServerlesslySyncOrAsyncProtocolWithSyncMiddlewares>(
-      serverlessly.pipe(dummyMiddlewaresSync[0])
+  test('getServer() returns correct type', () => {
+    expect<DummyProtocolServerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getServer()
     );
   });
 
-  test('getHandler() with every Platform Adapter returns correct type', () => {
-    /**
-     * Following Platform Adapters are not incompatible with protocol:
-     * dummyPlatformAdapterSync
-     * dummyPlatformAdapterAsync
-     * dummyPlatformAdapterAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol
-     */
-    expect<DummyProtocolSyncOrAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler()
-    );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict })
-    );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync })
-    );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      })
-    );
-  });
-});
-
-describe('ServerlesslySyncOrAsyncProtocolWithAsyncMiddlewares', () => {
-  test('Serverlessly instance has correct type', () => {
-    expect<ServerlesslySyncOrAsyncProtocolWithAsyncMiddlewares>(
-      new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
-      })
-    );
-  });
-
-  let serverlessly: ServerlesslySyncOrAsyncProtocolWithAsyncMiddlewares;
-
-  beforeEach(() => {
-    serverlessly = new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineAsyncMiddlewareToSyncOrAsyncProtocol,
-    });
-  });
-
-  test('pipe() returns correct type.', () => {
-    expect<ServerlesslySyncOrAsyncProtocolWithAsyncMiddlewares>(
-      serverlessly.pipe(dummyMiddlewaresAsync[0])
-    );
-  });
-
-  test('getHandler() with every Platform Adapter returns correct type', () => {
-    /**
-     * Following Platform Adapters are not incompatible with protocol:
-     * dummyPlatformAdapterSync
-     * dummyPlatformAdapterAsync
-     * dummyPlatformAdapterAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol
-     */
-    expect<DummyProtocolSyncOrAsync>(
-      serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler()
-    );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresAsync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict })
-    );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresAsync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync })
-    );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresAsync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      })
-    );
-  });
-});
-
-describe('ServerlesslyAsyncProtocolWithSyncOrAsyncMiddlewares', () => {
-  test('Serverlessly instance has correct type', () => {
-    expect<ServerlesslyAsyncProtocolWithSyncOrAsyncMiddlewares>(
-      new Serverlessly({
-        middlewareEngine: dummyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol,
-      })
-    );
-  });
-
-  let serverlessly: ServerlesslyAsyncProtocolWithSyncOrAsyncMiddlewares;
-
-  beforeEach(() => {
-    serverlessly = new Serverlessly({
-      middlewareEngine: dummyMiddlewareEngineSyncOrAsyncMiddlewareToAsyncProtocol,
-    });
-  });
-
-  test('pipe() returns correct type.', () => {
-    expect<ServerlesslyAsyncProtocolWithSyncOrAsyncMiddlewares>(
-      serverlessly.pipe(dummyMiddlewaresSync[0])
-    );
-  });
-
-  test('getHandler() with every Platform Adapter returns correct type', () => {
-    /**
-     * Following Platform Adapters are not incompatible with protocol:
-     * dummyPlatformAdapterSync
-     * dummyPlatformAdapterAsyncHandlerToSyncProtocol
-     * dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
-     */
-    expect<DummyProtocolAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler()
-    );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsyncStrict })
-    );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly
-        .pipe(dummyMiddlewaresSync[0])
-        .getHandler({ platformAdapter: dummyPlatformAdapterSyncOrAsync })
-    );
-    expect<DummyHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol,
-      })
-    );
-    expect<DummyHandlerAsync>(
-      serverlessly.pipe(dummyMiddlewaresSync[0]).getHandler({
-        platformAdapter: dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol,
-      })
+  test('getProtocolRequestHandler() returns correct type', () => {
+    expect<DummyProtocolRequestHandlerSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
     );
   });
 });

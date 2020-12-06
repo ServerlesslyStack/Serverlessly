@@ -2,62 +2,23 @@
 
 Based on Types
 
-## Platform Adapters Incompatible with Protocol
+## Platform Adapters Incompatible with ProtocolRequestHandlers
 
-### DummyProtocolSync
+### DummyProtocolRequestHandlerSync
 
 - dummyPlatformAdapterAsync
-- dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol
+- dummyPlatformAdapter12
 
-### DummyProtocolAsync
-
-- dummyPlatformAdapterSync
-- dummyPlatformAdapterAsyncHandlerToSyncProtocol
-- dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
-
-### DummyProtocolSyncOrAsync
+### DummyProtocolRequestHandlerAsync
 
 - dummyPlatformAdapterSync
+- dummyPlatformAdapter01
+- dummyPlatformAdapter02
+
+### DummyProtocolRequestHandlerSyncOrAsync
+
+- dummyPlatformAdapterSync
+- dummyPlatformAdapter01
+- dummyPlatformAdapter02
 - dummyPlatformAdapterAsync
-- dummyPlatformAdapterAsyncHandlerToSyncProtocol
-- dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
-- dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol
-
-## Protocols Inompatible with Platform Adapters
-
-### dummyPlatformAdapterSync
-
-- DummyProtocolAsync
-- DummyProtocolSyncOrAsync
-
-### dummyPlatformAdapterAsync
-
-- DummyProtocolSync
-- DummyProtocolSyncOrAsync
-
-### dummyPlatformAdapterAsyncHandlerToSyncProtocol
-
-- DummyProtocolAsync
-- DummyProtocolSyncOrAsync
-
-### dummyPlatformAdapterSyncOrAsyncStrict
-
-None
-
-### dummyPlatformAdapterSyncOrAsync
-
-None
-
-### dummyPlatformAdapterSyncOrAsyncHandlerToSyncProtocol
-
-- DummyProtocolAsync
-- DummyProtocolSyncOrAsync
-
-### dummyPlatformAdapterSyncOrAsyncHandlerToAsyncProtocol
-
-- DummyProtocolSync
-- DummyProtocolSyncOrAsync
-
-### dummyPlatformAdapterAsyncHandlerToSyncOrAsyncProtocol
-
-None
+- dummyPlatformAdapter12
