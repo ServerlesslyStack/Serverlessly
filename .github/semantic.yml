@@ -12,6 +12,7 @@ types:
   - refactor
   - repo
   - revert
+  - style
   - test
 scopes:
   - core
