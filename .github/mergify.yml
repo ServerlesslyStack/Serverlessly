@@ -84,17 +84,12 @@ pull_request_rules:
     {
       name: Add code-style-issue label,
       conditions:
-        [check-failure~=(Lint|Format Check), -closed, label!=code-style-issue],
+        [check-failure=Format Check, -closed, label!=code-style-issue],
       actions: { label: { add: [code-style-issue] } },
     },
     {
       name: Remove code-style-issue label,
-      conditions:
-        [
-          check-success=Lint,
-          check-success=Format Check,
-          label=code-style-issue,
-        ],
+      conditions: [check-success=Format Check, label=code-style-issue],
       actions: { label: { remove: [code-style-issue] } },
     },
     {
@@ -111,15 +106,15 @@ pull_request_rules:
     {
       name: Add code-quality-issue label,
       conditions:
-        [check-failure=codeclimate, -closed, label!=code-quality-issue],
+        [check-failure~=(Lint|codeclimate), -closed, label!=code-quality-issue],
       actions: { label: { add: [code-quality-issue] } },
     },
     {
       name: Remove code-quality-issue label,
       conditions:
         [
+          check-success=Lint,
           check-success=codeclimate,
-          check-success=Format Check,
           label=code-quality-issue,
         ],
       actions: { label: { remove: [code-quality-issue] } },
@@ -194,33 +189,23 @@ pull_request_rules:
     {
       name: Add approved label,
       conditions:
-        [author!=SachinShekhar, '#approved-reviews-by>=2', label!=approved],
+        [
+          author!=@ServerlesslyStack/core,
+          'approved-reviews-by=@ServerlesslyStack/core',
+          label!=approved,
+        ],
       actions: { label: { add: [approved] } },
     },
     {
-      name: Add owner-approved label,
-      conditions:
-        [
-          author!=SachinShekhar,
-          approved-reviews-by=SachinShekhar,
-          label!=owner-approved,
-        ],
-      actions: { label: { add: [owner-approved] } },
-    },
-    {
       name: Remove approved label,
-      conditions: ['#approved-reviews-by<2', label=approved],
+      conditions:
+        ['approved-reviews-by!=@ServerlesslyStack/core', label=approved],
       actions: { label: { remove: [approved] } },
     },
     {
-      name: Remove owner-approved label,
-      conditions: [approved-reviews-by!=SachinShekhar, label=owner-approved],
-      actions: { label: { remove: [owner-approved] } },
-    },
-    {
-      name: Add author-is-owner label,
-      conditions: [author=SachinShekhar, label!=author-is-owner],
-      actions: { label: { add: [author-is-owner] } },
+      name: Add by-core-team label,
+      conditions: [author=@ServerlesslyStack/core, label!=by-core-team],
+      actions: { label: { add: [by-core-team] } },
     },
     {
       name: Add revision-needed label,
@@ -237,7 +222,7 @@ pull_request_rules:
       conditions:
         [
           -label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|blocked),
-          label~=(approved|owner-approved|author-is-owner),
+          label~=(approved|by-core-team),
           -closed,
           -merged,
           label!=ready-to-merge,
@@ -255,11 +240,7 @@ pull_request_rules:
     },
     {
       name: Remove ready-to-merge label when PR is not in approved state,
-      conditions:
-        [
-          -label~=(approved|owner-approved|author-is-owner),
-          label=ready-to-merge,
-        ],
+      conditions: [-label~=(approved|by-core-team), label=ready-to-merge],
       actions: { label: { remove: [ready-to-merge] } },
     },
     {
@@ -318,10 +299,10 @@ pull_request_rules:
         },
     },
     {
-      name: Automatic merge,
+      name: Automatic merge PR of outsiders,
       conditions:
         [
-          author!=SachinShekhar,
+          author!=@ServerlesslyStack/core,
           label=ready-to-merge,
           label!=work-in-progress,
           -closed,
@@ -333,10 +314,10 @@ pull_request_rules:
         },
     },
     {
-      name: Automatic merge PR of @SachinShekhar,
+      name: Automatic merge PR of Core Team,
       conditions:
         [
-          author=SachinShekhar,
+          author=@ServerlesslyStack/core,
           label=ready-to-merge,
           label!=work-in-progress,
           -closed,
@@ -349,7 +330,7 @@ pull_request_rules:
     },
     {
       name: Thank on successful merge,
-      conditions: [author!=SachinShekhar, merged],
+      conditions: [author!=@ServerlesslyStack/core, merged],
       actions:
         {
           comment:
