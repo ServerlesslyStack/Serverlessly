@@ -7,13 +7,16 @@ const eslintConfig = {
     {
       files: ['**/*.ts'],
       parser: '@typescript-eslint/parser',
-      plugins: ['@typescript-eslint'],
+      plugins: ['@typescript-eslint', 'eslint-plugin-tsdoc'],
       extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
         'prettier',
         'prettier/@typescript-eslint',
       ],
+      rules: {
+        'tsdoc/syntax': 'warn',
+      },
     },
   ],
 };
