@@ -11,9 +11,9 @@ import {
   ProtocolServerFactory,
 } from './protocol';
 
-export type ServerlesslyLogsEvent = 'LOG';
-export type ServerlesslyErrorEvent = 'ERROR';
-export type ServerlesslyMiddlewaresEvent = 'MIDDLEWARES' | 'NEW_MIDDLEWARES';
+type ServerlesslyLogsEvent = 'LOG';
+type ServerlesslyErrorEvent = 'ERROR';
+type ServerlesslyMiddlewaresEvent = 'MIDDLEWARES' | 'NEW_MIDDLEWARES';
 
 export interface Serverlessly<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
