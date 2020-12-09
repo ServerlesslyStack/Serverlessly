@@ -15,26 +15,30 @@ labels: bug, needs-triage
 2.  
 3.  
 
-**Expected Behavior**
+### Expected Behavior
 <!-- A clear and concise description of what you expected to happen. -->
 
 
 
-**Current Behavior**
+### Current Behavior
 <!-- A clear and concise description of what actually happens. -->
 
 
 
-**Environment:**
+### Is This Regression?
+<!-- Did this issue exist in the previous version? Yes/ No/ Don't Know-->
+
+
+
+### Environment:
  - Serverlessly version: 
  - Node.js version: 
 
-**Additional Context**
+### Additional Context
 <!-- Add any other context about the bug here. -->
 
 
 
- - [ ] I know that this bug didn't exist in a previous version.
  - [ ] This isn't a known bug as I have already searched the Issues.
 
 --- 

@@ -1,1 +1,16 @@
-blank_issues_enabled: false
+{
+  blank_issues_enabled: false,
+  contact_links:
+    [
+      {
+        name: 'Question',
+        url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions?discussions_q=category%3AQ%26A',
+        about: Get help from community,
+      },
+      {
+        name: 'Other',
+        url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions',
+        about: Other stuffs you need to discuss,
+      },
+    ],
+}

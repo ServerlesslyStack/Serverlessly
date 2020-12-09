@@ -23,7 +23,7 @@ labels: feature-request, needs-triage
 
 
 - [ ] :wave: I may be able to implement this feature request
-- [ ] :warning: This feature might incur a breaking change
+- [ ] :warning: This feature might incur a BREAKING CHANGE
 
 ---
 
