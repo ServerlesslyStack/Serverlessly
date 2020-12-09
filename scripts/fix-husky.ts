@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
 
-const huskyScriptPath = path.join(__dirname, '../.git/hooks/husky.sh');
+const huskyScriptPath = path.join(__dirname, '../.husky/_/husky.sh');
 
 // If Operating System is Windows, fix Husky for Yarn
 if (process.platform === 'win32') {

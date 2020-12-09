@@ -3,3 +3,5 @@ yarn-error.log
 
 coverage
 .cache
+
+.DS_Store

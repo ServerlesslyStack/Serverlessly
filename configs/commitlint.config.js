@@ -14,6 +14,7 @@ const commitlintConfig = {
         'env',
         'feat',
         'fix',
+        'lint',
         'perf',
         'refactor',
         'repo',

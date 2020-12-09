@@ -12,9 +12,9 @@ The following is a set of guidelines for contributing to Serverlessly. These are
 
 ## How and What to Contribute
 
-- **Ideas:** Participate in ideas/ feature request threads in [Issues](https://github.com/ServerlesslyStack/Serverlessly/issues) or start your own thread to have your voice heard
+- **Ideas:** Participate in Ideas threads in [Serverlessly Discussions -> Ideas](https://github.com/ServerlesslyStack/Serverlessly/discussions?discussions_q=category%3AIdeas) or start your own thread to have your voice heard.
 
-- **Bugs:** Report bugs by starting a new thread in [Issues](https://github.com/ServerlesslyStack/Serverlessly/issues) (always search the issues first in case the bug has already been reported). [DO NOT REPORT SECURITY VULNERABILITIES AS ISSUES](./SECURITY.md).
+- **Bugs:** Report bugs by starting a new thread in [Serverlessly Issues](https://github.com/ServerlesslyStack/Serverlessly/issues) (always search the issues first in case the bug has already been reported). [DO NOT REPORT SECURITY VULNERABILITIES AS ISSUES](./SECURITY.md).
 
 - **Docs:** Fix typos and clarify language in documentation markdown files (`*.md`) or [TSDOC](https://github.com/microsoft/tsdoc) of code files by opening [Pull Requests](https://help.github.com/articles/using-pull-requests) from a forked repo.
 
@@ -28,7 +28,7 @@ The following is a set of guidelines for contributing to Serverlessly. These are
 
 3. [Install Yarn](https://classic.yarnpkg.com/en/docs/install/) if it's not already installed (npm is NOT supported).
 
-4. Run `yarn bootstrap` command which will setup your environment.
+4. Run `yarn` command which will setup your environment.
 
 For best experience, use [Visual Studio Code](https://code.visualstudio.com/) IDE & install all [extensions recommended by this project](./.vscode/extensions.json).
 
