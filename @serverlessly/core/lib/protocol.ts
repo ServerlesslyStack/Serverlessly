@@ -2,30 +2,20 @@ import { MiddlewareEngine } from './middleware-engine';
 import { PlatformAdapter } from './platform-adapter';
 
 export type ProtocolServerFactory<
-  TProtocolRequestHandler,
+  TProtocolContext,
   TProtocolServer
-> = PlatformAdapter<TProtocolRequestHandler, TProtocolServer>;
+> = PlatformAdapter<TProtocolContext, TProtocolServer>;
 
-export interface Protocol<
-  TProtocolRequestHandler,
-  TMiddleware,
-  TProtocolServer
-> {
-  defaultMiddlewareEngine: MiddlewareEngine<
-    TProtocolRequestHandler,
-    TMiddleware
-  >;
-  serverFactory: ProtocolServerFactory<
-    TProtocolRequestHandler,
-    TProtocolServer
-  >;
+export interface Protocol<TProtocolContext, TMiddleware, TProtocolServer> {
+  defaultMiddlewareEngine: MiddlewareEngine<TProtocolContext, TMiddleware>;
+  serverFactory: ProtocolServerFactory<TProtocolContext, TProtocolServer>;
 }
 
-export type ProtocolServerAdapter<TProtocolRequestHandler> = PlatformAdapter<
-  TProtocolRequestHandler,
-  TProtocolRequestHandler
+export type ProtocolServerAdapter<TProtocolContext> = PlatformAdapter<
+  TProtocolContext,
+  TProtocolContext
 >;
 
 export const protocolServerAdapter: ProtocolServerAdapter<unknown> = (
-  protocolRequestHandler
-) => protocolRequestHandler;
+  protocolContext
+) => protocolContext;

@@ -6,14 +6,14 @@ import {
   Serverlessly,
 } from '@serverlessly/core';
 import * as validateMiddleware from '../lib/helpers/validate-middlewares';
-import * as protocolRequestHandler from '../lib/helpers/protocol-request-handler';
+import * as protocolContext from '../lib/helpers/protocol-context';
 import * as platformHandler from '../lib/helpers/platform-handler';
 import { dummyMiddlewareEngineSync } from './dummies/middleware-engines';
 import { dummyMiddlewaresSync } from './dummies/middlewares';
 import { dummyPlatformAdapterSync } from './dummies/platform-adapters';
 import { dummyProtocolSync } from './dummies/protocols';
 import { ServerlesslySync } from './dummies/serverlessly';
-import { DummyProtocolRequestHandlerSync } from './dummies/protocol-request-handlers';
+import { DummyProtocolContextSync } from './dummies/protocol-contexts';
 import { protocolServerAdapter } from '../lib/protocol';
 
 const protocol = dummyProtocolSync;
@@ -193,7 +193,7 @@ describe('getHandler() Tests', () => {
   let errorListener: jest.Mock;
 
   let validateMiddlewareSpy: jest.SpyInstance<void, [middlewares: unknown[]]>;
-  let getProtocolRequestHandlerSpy: jest.SpyInstance<
+  let getProtocolContextSpy: jest.SpyInstance<
     unknown,
     [
       middlewareEngine: MiddlewareEngine<unknown, unknown>,
@@ -220,10 +220,7 @@ describe('getHandler() Tests', () => {
       validateMiddleware,
       'validateMiddlewares'
     );
-    getProtocolRequestHandlerSpy = jest.spyOn(
-      protocolRequestHandler,
-      'getProtocolRequestHandler'
-    );
+    getProtocolContextSpy = jest.spyOn(protocolContext, 'getProtocolContext');
     getPlatformHandlerSpy = jest.spyOn(platformHandler, 'getPlatformHandler');
   });
 
@@ -286,12 +283,12 @@ describe('getHandler() Tests', () => {
       expect(logsListener).not.toBeCalled();
     });
 
-    test('getHandler() does not call getProtocolRequestHandler() or getPlatformHandler()', () => {
+    test('getHandler() does not call getProtocolContext() or getPlatformHandler()', () => {
       try {
         serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
       } catch (error) {}
 
-      expect(getProtocolRequestHandlerSpy).not.toBeCalled();
+      expect(getProtocolContextSpy).not.toBeCalled();
       expect(getPlatformHandlerSpy).not.toBeCalled();
     });
   });
@@ -303,14 +300,14 @@ describe('getHandler() Tests', () => {
       });
     });
 
-    test('getHandler() calls getProtocolRequestHandler() once', () => {
+    test('getHandler() calls getProtocolContext() once', () => {
       serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
-      expect(getProtocolRequestHandlerSpy).toBeCalledTimes(1);
+      expect(getProtocolContextSpy).toBeCalledTimes(1);
     });
 
-    test('getHandler() calls getProtocolRequestHandler() with correct argument', () => {
+    test('getHandler() calls getProtocolContext() with correct argument', () => {
       serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
-      expect(getProtocolRequestHandlerSpy).toBeCalledWith(middlewareEngine, [
+      expect(getProtocolContextSpy).toBeCalledWith(middlewareEngine, [
         middlewares[0],
       ]);
     });
@@ -335,9 +332,9 @@ describe('getHandler() Tests', () => {
       expect(logsListener).lastCalledWith('getHandler: 2 middlewares found');
     });
 
-    describe('if getProtocolRequestHandler() throws', () => {
+    describe('if getProtocolContext() throws', () => {
       beforeEach(() => {
-        getProtocolRequestHandlerSpy.mockImplementationOnce(() => {
+        getProtocolContextSpy.mockImplementationOnce(() => {
           throw new Error('Dummy Error');
         });
       });
@@ -378,9 +375,9 @@ describe('getHandler() Tests', () => {
       });
     });
 
-    describe('if getProtocolRequestHandler() does not throw', () => {
+    describe('if getProtocolContext() does not throw', () => {
       beforeEach(() => {
-        getProtocolRequestHandlerSpy.mockImplementationOnce(() => {
+        getProtocolContextSpy.mockImplementationOnce(() => {
           return 'Foo';
         });
       });
@@ -457,7 +454,7 @@ describe('getServer() Tests', () => {
   let serverlessly: ServerlesslySync;
   let getHandlerSpy: jest.SpyInstance<
     unknown,
-    [props: HandlerProps<DummyProtocolRequestHandlerSync, unknown>]
+    [props: HandlerProps<DummyProtocolContextSync, unknown>]
   >;
 
   beforeEach(() => {
@@ -482,11 +479,11 @@ describe('getServer() Tests', () => {
   });
 });
 
-describe('getProtocolRequestHandler() Tests', () => {
+describe('getProtocolContext() Tests', () => {
   let serverlessly: ServerlesslySync;
   let getHandlerSpy: jest.SpyInstance<
     unknown,
-    [props: HandlerProps<DummyProtocolRequestHandlerSync, unknown>]
+    [props: HandlerProps<DummyProtocolContextSync, unknown>]
   >;
 
   beforeEach(() => {
@@ -498,13 +495,13 @@ describe('getProtocolRequestHandler() Tests', () => {
     jest.clearAllMocks();
   });
 
-  test('getProtocolRequestHandler() calls getHandler() once', () => {
-    serverlessly.getProtocolRequestHandler();
+  test('getProtocolContext() calls getHandler() once', () => {
+    serverlessly.getProtocolContext();
     expect(getHandlerSpy).toBeCalledTimes(1);
   });
 
-  test('getProtocolRequestHandler() calls getHandler() with correct arguments', () => {
-    serverlessly.getProtocolRequestHandler();
+  test('getProtocolContext() calls getHandler() with correct arguments', () => {
+    serverlessly.getProtocolContext();
     expect(getHandlerSpy).toBeCalledWith({
       platformAdapter: protocolServerAdapter,
     });

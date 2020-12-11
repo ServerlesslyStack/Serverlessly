@@ -5,53 +5,53 @@ import {
   DummyMiddlewareSyncOrAsync,
 } from './middlewares';
 import {
-  DummyProtocolRequestHandlerSync,
-  DummyProtocolRequestHandlerAsync,
-  DummyProtocolRequestHandlerSyncOrAsync,
-} from './protocol-request-handlers';
+  DummyProtocolContextSync,
+  DummyProtocolContextAsync,
+  DummyProtocolContextSyncOrAsync,
+} from './protocol-contexts';
 
 // Sync=0 Async=1 SyncOrAsync=2
 
 // Dummy Middleware Engine Interfaces
 // 00
 export type DummyMiddlewareEngineSync = MiddlewareEngine<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyMiddlewareSync
 >;
 // An Impossibility!!!
 // export type DummyMiddlewareEngine01 = MiddlewareEngine<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareAsync
 // >;
 // An Impossibility!!!
 // export type DummyMiddlewareEngine02 = MiddlewareEngine<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync
 // >;
 export type DummyMiddlewareEngine10 = MiddlewareEngine<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareSync
 >;
 // 11
 export type DummyMiddlewareEngineAsync = MiddlewareEngine<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareAsync
 >;
 export type DummyMiddlewareEngine12 = MiddlewareEngine<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareSyncOrAsync
 >;
 export type DummyMiddlewareEngine20 = MiddlewareEngine<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSync
 >;
 export type DummyMiddlewareEngine21 = MiddlewareEngine<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareAsync
 >;
 // 22
 export type DummyMiddlewareEngineSyncOrAsync = MiddlewareEngine<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSyncOrAsync
 >;
 

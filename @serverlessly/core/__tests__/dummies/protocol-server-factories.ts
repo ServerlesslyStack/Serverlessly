@@ -1,9 +1,9 @@
 import { ProtocolServerFactory } from '@serverlessly/core';
 import {
-  DummyProtocolRequestHandlerSync,
-  DummyProtocolRequestHandlerAsync,
-  DummyProtocolRequestHandlerSyncOrAsync,
-} from './protocol-request-handlers';
+  DummyProtocolContextSync,
+  DummyProtocolContextAsync,
+  DummyProtocolContextSyncOrAsync,
+} from './protocol-contexts';
 import {
   DummyProtocolServerSync,
   DummyProtocolServerSyncOrAsync,
@@ -15,128 +15,128 @@ import {
 // Dummy Protocol Server Factory interfaces
 // 00
 export type DummyProtocolServerFactorySync = ProtocolServerFactory<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyProtocolServerSync
 >;
 export type DummyProtocolServerFactory01 = ProtocolServerFactory<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocolServerFactory02 = ProtocolServerFactory<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocolServerFactory10 = ProtocolServerFactory<
-//   DummyProtocolRequestHandlerAsync,
+//   DummyProtocolContextAsync,
 //   DummyProtocolServerSync
 // >;
 // 11
 export type DummyProtocolServerFactoryAsync = ProtocolServerFactory<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocolServerFactory12 = ProtocolServerFactory<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocolServerFactory20 = ProtocolServerFactory<
-//   DummyProtocolRequestHandlerSyncOrAsync,
+//   DummyProtocolContextSyncOrAsync,
 //   DummyProtocolServerSync
 // >;
 export type DummyProtocolServerFactory21 = ProtocolServerFactory<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyProtocolServerAsync
 >;
 // 22
 export type DummyProtocolServerFactorySyncOrAsync = ProtocolServerFactory<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyProtocolServerSyncOrAsync
 >;
 
 // Concrete Protocol Server Factories
 export const dummyProtocolServerFactorySync: DummyProtocolServerFactorySync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
-) => new DummyProtocolServerSync(protocolRequestHandler);
+  protocolContext: DummyProtocolContextSync
+) => new DummyProtocolServerSync(protocolContext);
 
 export const dummyProtocolServerFactory01: DummyProtocolServerFactory01 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
-) => new DummyProtocolServerAsync(protocolRequestHandler);
+  protocolContext: DummyProtocolContextSync
+) => new DummyProtocolServerAsync(protocolContext);
 
 export const dummyProtocolServerFactory02: DummyProtocolServerFactory02 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
-) => new DummyProtocolServerSyncOrAsync(protocolRequestHandler);
+  protocolContext: DummyProtocolContextSync
+) => new DummyProtocolServerSyncOrAsync(protocolContext);
 
 export const dummyProtocolServerFactoryAsync: DummyProtocolServerFactoryAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
-) => new DummyProtocolServerAsync(protocolRequestHandler);
+  protocolContext: DummyProtocolContextAsync
+) => new DummyProtocolServerAsync(protocolContext);
 
 export const dummyProtocolServerFactory12: DummyProtocolServerFactory12 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
-) => new DummyProtocolServerSyncOrAsync(protocolRequestHandler);
+  protocolContext: DummyProtocolContextAsync
+) => new DummyProtocolServerSyncOrAsync(protocolContext);
 
 export const dummyProtocolServerFactory21: DummyProtocolServerFactory21 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
-) => new DummyProtocolServerAsync(protocolRequestHandler);
+  protocolContext: DummyProtocolContextSyncOrAsync
+) => new DummyProtocolServerAsync(protocolContext);
 
 export const dummyProtocolServerFactorySyncOrAsync: DummyProtocolServerFactorySyncOrAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
-) => new DummyProtocolServerSyncOrAsync(protocolRequestHandler);
+  protocolContext: DummyProtocolContextSyncOrAsync
+) => new DummyProtocolServerSyncOrAsync(protocolContext);
 
 // Faulty Protocol Server Factories
 export const faultyProtocolServerFactorySync: DummyProtocolServerFactorySync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
+  protocolContext: DummyProtocolContextSync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return new DummyProtocolServerSync(protocolRequestHandler);
+  return new DummyProtocolServerSync(protocolContext);
 };
 
 export const faultyProtocolServerFactory01: DummyProtocolServerFactory01 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
+  protocolContext: DummyProtocolContextSync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return new DummyProtocolServerAsync(protocolRequestHandler);
+  return new DummyProtocolServerAsync(protocolContext);
 };
 
 export const faultyProtocolServerFactory02: DummyProtocolServerFactory02 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
+  protocolContext: DummyProtocolContextSync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return new DummyProtocolServerSyncOrAsync(protocolRequestHandler);
+  return new DummyProtocolServerSyncOrAsync(protocolContext);
 };
 
 export const faultyProtocolServerFactoryAsync: DummyProtocolServerFactoryAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
+  protocolContext: DummyProtocolContextAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return new DummyProtocolServerAsync(protocolRequestHandler);
+  return new DummyProtocolServerAsync(protocolContext);
 };
 
 export const faultyProtocolServerFactory12: DummyProtocolServerFactory12 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
+  protocolContext: DummyProtocolContextAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return new DummyProtocolServerSyncOrAsync(protocolRequestHandler);
+  return new DummyProtocolServerSyncOrAsync(protocolContext);
 };
 
 export const faultyProtocolServerFactory21: DummyProtocolServerFactory21 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
+  protocolContext: DummyProtocolContextSyncOrAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return new DummyProtocolServerAsync(protocolRequestHandler);
+  return new DummyProtocolServerAsync(protocolContext);
 };
 
 export const faultyProtocolServerFactorySyncOrAsync: DummyProtocolServerFactorySyncOrAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
+  protocolContext: DummyProtocolContextSyncOrAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return new DummyProtocolServerSyncOrAsync(protocolRequestHandler);
+  return new DummyProtocolServerSyncOrAsync(protocolContext);
 };

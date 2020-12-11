@@ -1,5 +1,5 @@
 import { MiddlewareEngine } from '@serverlessly/core';
-import { getProtocolRequestHandler } from '@serverlessly/core/lib/helpers/protocol-request-handler';
+import { getProtocolContext } from '@serverlessly/core/lib/helpers/protocol-context';
 import {
   dummyMiddlewareEngine10,
   dummyMiddlewareEngine12,
@@ -111,22 +111,22 @@ const faultyTestCases: TestCase[] = [
 describe.each(healthyTestCases)(
   'Test with %s Middleware Engine',
   (middlewareEngineName, middlewareEngine, middlewares) => {
-    test(`getProtocolRequestHandler() does not throw with ${middlewareEngineName} Middleware Engine`, () => {
+    test(`getProtocolContext() does not throw with ${middlewareEngineName} Middleware Engine`, () => {
       expect(() => {
-        getProtocolRequestHandler(middlewareEngine, middlewares);
+        getProtocolContext(middlewareEngine, middlewares);
       }).not.toThrow();
     });
 
-    test(`getProtocolRequestHandler() returns correct value with ${middlewareEngineName} Middleware Engine`, () => {
-      const protocolRequestHandler = getProtocolRequestHandler(
+    test(`getProtocolContext() returns correct value with ${middlewareEngineName} Middleware Engine`, () => {
+      const protocolContext = getProtocolContext(
         middlewareEngine,
         middlewares
       )('Hulk Says:');
 
-      if (protocolRequestHandler instanceof Promise) {
-        expect(protocolRequestHandler).resolves.toBe('Hulk Says: Hulk Smash');
+      if (protocolContext instanceof Promise) {
+        expect(protocolContext).resolves.toBe('Hulk Says: Hulk Smash');
       } else {
-        expect(protocolRequestHandler).toBe('Hulk Says: Hulk Smash');
+        expect(protocolContext).toBe('Hulk Says: Hulk Smash');
       }
     });
   }
@@ -135,15 +135,15 @@ describe.each(healthyTestCases)(
 describe.each(faultyTestCases)(
   'Test with %s Middleware Engine',
   (middlewareEngineName, middlewareEngine, middlewares) => {
-    test(`getProtocolRequestHandler() throws with ${middlewareEngineName} Middleware Engine`, () => {
+    test(`getProtocolContext() throws with ${middlewareEngineName} Middleware Engine`, () => {
       expect(() => {
-        getProtocolRequestHandler(middlewareEngine, middlewares);
+        getProtocolContext(middlewareEngine, middlewares);
       }).toThrow();
     });
 
-    test(`getProtocolRequestHandler() throws correct error with ${middlewareEngineName} Middleware Engine`, () => {
+    test(`getProtocolContext() throws correct error with ${middlewareEngineName} Middleware Engine`, () => {
       expect(() => {
-        getProtocolRequestHandler(middlewareEngine, middlewares);
+        getProtocolContext(middlewareEngine, middlewares);
       }).toThrow(
         new Error('Faulty Middleware Engine\nRangeError: Invalid array length')
       );

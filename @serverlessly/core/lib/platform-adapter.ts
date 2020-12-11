@@ -1,3 +1,3 @@
-export type PlatformAdapter<TProtocolRequestHandler, TPlatformHandler> = (
-  protocolRequestHandler: TProtocolRequestHandler
+export type PlatformAdapter<TProtocolContext, TPlatformHandler> = (
+  protocolContext: TProtocolContext
 ) => TPlatformHandler;

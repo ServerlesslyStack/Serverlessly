@@ -5,157 +5,157 @@ import {
   DummyPlatformHandlerSyncOrAsync,
 } from './platform-handlers';
 import {
-  DummyProtocolRequestHandlerSync,
-  DummyProtocolRequestHandlerAsync,
-  DummyProtocolRequestHandlerSyncOrAsync,
-} from './protocol-request-handlers';
+  DummyProtocolContextSync,
+  DummyProtocolContextAsync,
+  DummyProtocolContextSyncOrAsync,
+} from './protocol-contexts';
 
 // Sync=0 Async=1 SyncOrAsync=2
 
 // Dummy Platform Adapter interfaces
 // 00
 export type DummyPlatformAdapterSync = PlatformAdapter<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyPlatformHandlerSync
 >;
 export type DummyPlatformAdapter01 = PlatformAdapter<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyPlatformHandlerAsync
 >;
 export type DummyPlatformAdapter02 = PlatformAdapter<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyPlatformHandlerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyPlatformAdapter10 = PlatformAdapter<
-//   DummyProtocolRequestHandlerAsync,
+//   DummyProtocolContextAsync,
 //   DummyPlatformHandlerSync
 // >;
 // 11
 export type DummyPlatformAdapterAsync = PlatformAdapter<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyPlatformHandlerAsync
 >;
 export type DummyPlatformAdapter12 = PlatformAdapter<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyPlatformHandlerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyPlatformAdapter20 = PlatformAdapter<
-//   DummyProtocolRequestHandlerSyncOrAsync,
+//   DummyProtocolContextSyncOrAsync,
 //   DummyPlatformHandlerSync
 // >;
 export type DummyPlatformAdapter21 = PlatformAdapter<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyPlatformHandlerAsync
 >;
 // 22
 export type DummyPlatformAdapterSyncOrAsync = PlatformAdapter<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyPlatformHandlerSyncOrAsync
 >;
 
 // Concrete Dummy Platform Adapters
 export const dummyPlatformAdapterSync: DummyPlatformAdapterSync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
-) => (prefix: string) => protocolRequestHandler(prefix);
+  protocolContext: DummyProtocolContextSync
+) => (prefix: string) => protocolContext(prefix);
 
 export const dummyPlatformAdapter01: DummyPlatformAdapter01 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
-) => async (prefix: string) => protocolRequestHandler(prefix);
+  protocolContext: DummyProtocolContextSync
+) => async (prefix: string) => protocolContext(prefix);
 
 export const dummyPlatformAdapter02: DummyPlatformAdapter02 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
-) => (prefix: string) => protocolRequestHandler(prefix);
+  protocolContext: DummyProtocolContextSync
+) => (prefix: string) => protocolContext(prefix);
 
 export const dummyPlatformAdapterAsync: DummyPlatformAdapterAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
-) => async (prefix: string) => await protocolRequestHandler(prefix);
+  protocolContext: DummyProtocolContextAsync
+) => async (prefix: string) => await protocolContext(prefix);
 
 export const dummyPlatformAdapter12: DummyPlatformAdapter12 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
-) => async (prefix: string) => await protocolRequestHandler(prefix);
+  protocolContext: DummyProtocolContextAsync
+) => async (prefix: string) => await protocolContext(prefix);
 
 export const dummyPlatformAdapter21: DummyPlatformAdapter21 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
-) => async (prefix: string) => await protocolRequestHandler(prefix);
+  protocolContext: DummyProtocolContextSyncOrAsync
+) => async (prefix: string) => await protocolContext(prefix);
 
 export const dummyPlatformAdapterSyncOrAsync: DummyPlatformAdapterSyncOrAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
-) => async (prefix: string) => await protocolRequestHandler(prefix);
+  protocolContext: DummyProtocolContextSyncOrAsync
+) => async (prefix: string) => await protocolContext(prefix);
 
 // When 'async' keyword is used strictly
 export const dummyPlatformAdapterSyncOrAsyncStrict: DummyPlatformAdapterSyncOrAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
+  protocolContext: DummyProtocolContextSyncOrAsync
 ) =>
-  protocolRequestHandler.constructor.name === 'AsyncFunction'
-    ? async (prefix: string) => await protocolRequestHandler(prefix)
-    : (prefix: string) => protocolRequestHandler(prefix);
+  protocolContext.constructor.name === 'AsyncFunction'
+    ? async (prefix: string) => await protocolContext(prefix)
+    : (prefix: string) => protocolContext(prefix);
 
 // Faulty Platform Adapters
 export const faultyPlatformAdapterSync: DummyPlatformAdapterSync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
+  protocolContext: DummyProtocolContextSync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return (prefix: string) => protocolRequestHandler(prefix);
+  return (prefix: string) => protocolContext(prefix);
 };
 
 export const faultyPlatformAdapter01: DummyPlatformAdapter01 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
+  protocolContext: DummyProtocolContextSync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return async (prefix: string) => protocolRequestHandler(prefix);
+  return async (prefix: string) => protocolContext(prefix);
 };
 
 export const faultyPlatformAdapter02: DummyPlatformAdapter02 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSync
+  protocolContext: DummyProtocolContextSync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return (prefix: string) => protocolRequestHandler(prefix);
+  return (prefix: string) => protocolContext(prefix);
 };
 
 export const faultyPlatformAdapterAsync: DummyPlatformAdapterAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
+  protocolContext: DummyProtocolContextAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return async (prefix: string) => await protocolRequestHandler(prefix);
+  return async (prefix: string) => await protocolContext(prefix);
 };
 
 export const faultyPlatformAdapter12: DummyPlatformAdapter12 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerAsync
+  protocolContext: DummyProtocolContextAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return async (prefix: string) => await protocolRequestHandler(prefix);
+  return async (prefix: string) => await protocolContext(prefix);
 };
 
 export const faultyPlatformAdapter21: DummyPlatformAdapter21 = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
+  protocolContext: DummyProtocolContextSyncOrAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return async (prefix: string) => await protocolRequestHandler(prefix);
+  return async (prefix: string) => await protocolContext(prefix);
 };
 
 export const faultyPlatformAdapterSyncOrAsync: DummyPlatformAdapterSyncOrAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
+  protocolContext: DummyProtocolContextSyncOrAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return async (prefix: string) => await protocolRequestHandler(prefix);
+  return async (prefix: string) => await protocolContext(prefix);
 };
 
 // When 'async' keyword is used strictly
 export const faultyPlatformAdapterSyncOrAsyncStrict: DummyPlatformAdapterSyncOrAsync = (
-  protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
+  protocolContext: DummyProtocolContextSyncOrAsync
 ) => {
   const array = [];
   array.length = -1; // Created "RangeError: Invalid array length"
-  return protocolRequestHandler.constructor.name === 'AsyncFunction'
-    ? async (prefix: string) => await protocolRequestHandler(prefix)
-    : (prefix: string) => protocolRequestHandler(prefix);
+  return protocolContext.constructor.name === 'AsyncFunction'
+    ? async (prefix: string) => await protocolContext(prefix)
+    : (prefix: string) => protocolContext(prefix);
 };

@@ -2,20 +2,20 @@
 
 Based on Types
 
-## Platform Adapters Incompatible with ProtocolRequestHandlers
+## Platform Adapters Incompatible with ProtocolContexts
 
-### DummyProtocolRequestHandlerSync
+### DummyProtocolContextSync
 
 - dummyPlatformAdapterAsync
 - dummyPlatformAdapter12
 
-### DummyProtocolRequestHandlerAsync
+### DummyProtocolContextAsync
 
 - dummyPlatformAdapterSync
 - dummyPlatformAdapter01
 - dummyPlatformAdapter02
 
-### DummyProtocolRequestHandlerSyncOrAsync
+### DummyProtocolContextSyncOrAsync
 
 - dummyPlatformAdapterSync
 - dummyPlatformAdapter01

@@ -1,3 +1,3 @@
-export type MiddlewareEngine<TProtocolRequestHandler, TMiddleware> = (
+export type MiddlewareEngine<TProtocolContext, TMiddleware> = (
   middlewares: TMiddleware[]
-) => TProtocolRequestHandler;
+) => TProtocolContext;

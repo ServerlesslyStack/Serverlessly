@@ -1,25 +1,21 @@
 import {
-  DummyProtocolRequestHandlerSync,
-  DummyProtocolRequestHandlerAsync,
-  DummyProtocolRequestHandlerSyncOrAsync,
-} from './protocol-request-handlers';
+  DummyProtocolContextSync,
+  DummyProtocolContextAsync,
+  DummyProtocolContextSyncOrAsync,
+} from './protocol-contexts';
 
 // Dummy Protocol Servers
 export class DummyProtocolServerSync {
-  constructor(
-    private protocolRequestHandler: DummyProtocolRequestHandlerSync
-  ) {}
+  constructor(private protocolContext: DummyProtocolContextSync) {}
 }
 export class DummyProtocolServerAsync {
   constructor(
-    private protocolRequestHandler:
-      | DummyProtocolRequestHandlerAsync
-      | DummyProtocolRequestHandlerSync
-      | DummyProtocolRequestHandlerSyncOrAsync
+    private protocolContext:
+      | DummyProtocolContextAsync
+      | DummyProtocolContextSync
+      | DummyProtocolContextSyncOrAsync
   ) {}
 }
 export class DummyProtocolServerSyncOrAsync {
-  constructor(
-    private protocolRequestHandler: DummyProtocolRequestHandlerSyncOrAsync
-  ) {}
+  constructor(private protocolContext: DummyProtocolContextSyncOrAsync) {}
 }

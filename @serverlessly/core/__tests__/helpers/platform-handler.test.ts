@@ -53,10 +53,10 @@ const faultyTestCases: TestCase[] = [
   ],
 ];
 
-let protocolRequestHandler: jest.Mock;
+let protocolContext: jest.Mock;
 
 beforeEach(() => {
-  protocolRequestHandler = jest.fn();
+  protocolContext = jest.fn();
 });
 
 afterEach(() => {
@@ -68,13 +68,13 @@ describe.each(healthyTestCases)(
   (platformAdapterName, platformAdapter) => {
     test(`getPlatformHandler() does not throw with ${platformAdapterName} Platform Adapter`, () => {
       expect(() => {
-        getPlatformHandler(platformAdapter, protocolRequestHandler);
+        getPlatformHandler(platformAdapter, protocolContext);
       }).not.toThrow();
     });
 
     test(`getPlatformHandler() returns correct value with ${platformAdapterName} Platform Adapter`, () => {
-      getPlatformHandler(platformAdapter, protocolRequestHandler)('Foo');
-      expect(protocolRequestHandler).toBeCalledWith('Foo');
+      getPlatformHandler(platformAdapter, protocolContext)('Foo');
+      expect(protocolContext).toBeCalledWith('Foo');
     });
   }
 );
@@ -84,13 +84,13 @@ describe.each(faultyTestCases)(
   (platformAdapterName, platformAdapter) => {
     test(`getPlatformHandler() throws with ${platformAdapterName} Platform Adapter`, () => {
       expect(() => {
-        getPlatformHandler(platformAdapter, protocolRequestHandler);
+        getPlatformHandler(platformAdapter, protocolContext);
       }).toThrow();
     });
 
     test(`getPlatformHandler() throws correct error with ${platformAdapterName} Platform Adapter`, () => {
       expect(() => {
-        getPlatformHandler(platformAdapter, protocolRequestHandler);
+        getPlatformHandler(platformAdapter, protocolContext);
       }).toThrow(
         new Error('Faulty Platform Adapter\nRangeError: Invalid array length')
       );

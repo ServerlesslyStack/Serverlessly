@@ -19,10 +19,10 @@ import {
   DummyPlatformHandlerSyncOrAsync,
 } from './dummies/platform-handlers';
 import {
-  DummyProtocolRequestHandlerAsync,
-  DummyProtocolRequestHandlerSync,
-  DummyProtocolRequestHandlerSyncOrAsync,
-} from './dummies/protocol-request-handlers';
+  DummyProtocolContextAsync,
+  DummyProtocolContextSync,
+  DummyProtocolContextSyncOrAsync,
+} from './dummies/protocol-contexts';
 import {
   DummyProtocolServerAsync,
   DummyProtocolServerSync,
@@ -91,7 +91,7 @@ describe('ServerlesslySync', () => {
      * dummyPlatformAdapterAsync
      * dummyPlatformAdapter12
      */
-    expect<DummyProtocolRequestHandlerSync>(
+    expect<DummyProtocolContextSync>(
       serverlessly
         .pipe(dummyMiddleware)
         .getHandler({ platformAdapter: dummyPlatformAdapterSync })
@@ -129,9 +129,9 @@ describe('ServerlesslySync', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -164,7 +164,7 @@ describe('Serverlessly001', () => {
      * dummyPlatformAdapterAsync
      * dummyPlatformAdapter12
      */
-    expect<DummyProtocolRequestHandlerSync>(
+    expect<DummyProtocolContextSync>(
       serverlessly
         .pipe(dummyMiddleware)
         .getHandler({ platformAdapter: dummyPlatformAdapterSync })
@@ -202,9 +202,9 @@ describe('Serverlessly001', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -237,7 +237,7 @@ describe('Serverlessly002', () => {
      * dummyPlatformAdapterAsync
      * dummyPlatformAdapter12
      */
-    expect<DummyProtocolRequestHandlerSync>(
+    expect<DummyProtocolContextSync>(
       serverlessly
         .pipe(dummyMiddleware)
         .getHandler({ platformAdapter: dummyPlatformAdapterSync })
@@ -275,9 +275,9 @@ describe('Serverlessly002', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -344,9 +344,9 @@ describe('Serverlessly101', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -413,9 +413,9 @@ describe('Serverlessly102', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -482,9 +482,9 @@ describe('ServerlesslyAsync', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -551,9 +551,9 @@ describe('Serverlessly112', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -620,9 +620,9 @@ describe('Serverlessly121', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -689,9 +689,9 @@ describe('Serverlessly122', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -750,9 +750,9 @@ describe('Serverlessly201', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -811,9 +811,9 @@ describe('Serverlessly202', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -872,9 +872,9 @@ describe('Serverlessly211', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -933,9 +933,9 @@ describe('Serverlessly212', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -994,9 +994,9 @@ describe('Serverlessly221', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });
@@ -1055,9 +1055,9 @@ describe('ServerlesslySyncOrAsync', () => {
     );
   });
 
-  test('getProtocolRequestHandler() returns correct type', () => {
-    expect<DummyProtocolRequestHandlerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getProtocolRequestHandler()
+  test('getProtocolContext() returns correct type', () => {
+    expect<DummyProtocolContextSyncOrAsync>(
+      serverlessly.pipe(dummyMiddleware).getProtocolContext()
     );
   });
 });

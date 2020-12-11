@@ -1,9 +1,9 @@
 import { MiddlewareEngine } from '../middleware-engine';
 
-export function getProtocolRequestHandler<TProtocolRequestHandler, TMiddleware>(
-  middlewareEngine: MiddlewareEngine<TProtocolRequestHandler, TMiddleware>,
+export function getProtocolContext<TProtocolContext, TMiddleware>(
+  middlewareEngine: MiddlewareEngine<TProtocolContext, TMiddleware>,
   middlewares: TMiddleware[]
-): TProtocolRequestHandler {
+): TProtocolContext {
   try {
     return middlewareEngine(middlewares);
   } catch (error) {

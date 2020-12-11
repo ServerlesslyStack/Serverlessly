@@ -21,10 +21,10 @@ import {
   DummyMiddlewareSyncOrAsync,
 } from './middlewares';
 import {
-  DummyProtocolRequestHandlerSync,
-  DummyProtocolRequestHandlerAsync,
-  DummyProtocolRequestHandlerSyncOrAsync,
-} from './protocol-request-handlers';
+  DummyProtocolContextSync,
+  DummyProtocolContextAsync,
+  DummyProtocolContextSyncOrAsync,
+} from './protocol-contexts';
 import {
   dummyProtocolServerFactory01,
   dummyProtocolServerFactory02,
@@ -52,151 +52,151 @@ import {
 // Dummy Protocol Interfaces
 // 000
 export type DummyProtocolSync = Protocol<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyMiddlewareSync,
   DummyProtocolServerSync
 >;
 export type DummyProtocol001 = Protocol<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyMiddlewareSync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocol002 = Protocol<
-  DummyProtocolRequestHandlerSync,
+  DummyProtocolContextSync,
   DummyMiddlewareSync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocol010 = Protocol<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
 //   DummyProtocolServerSync
 // >;
 // An Impossibility!!!
 // export type DummyProtocol011 = Protocol<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
 //   DummyProtocolServerAsync
 // >;
 // An Impossibility!!!
 // export type DummyProtocol012 = Protocol<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
 //   DummyProtocolServerSyncOrAsync
 // >;
 // An Impossibility!!!
 // export type DummyProtocol020 = Protocol<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
 //   DummyProtocolServerSync
 // >;
 // An Impossibility!!!
 // export type DummyProtocol021 = Protocol<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
 //   DummyProtocolServerAsync
 // >;
 // An Impossibility!!!
 // export type DummyProtocol022 = Protocol<
-//   DummyProtocolRequestHandlerSync,
+//   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
 //   DummyProtocolServerSyncOrAsync
 // >;
 // An Impossibility!!!
 // export type DummyProtocol100 = Protocol<
-//   DummyProtocolRequestHandlerAsync,
+//   DummyProtocolContextAsync,
 //   DummyMiddlewareSync,
 //   DummyProtocolServerSync
 // >;
 export type DummyProtocol101 = Protocol<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareSync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocol102 = Protocol<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareSync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocol110 = Protocol<
-//   DummyProtocolRequestHandlerAsync,
+//   DummyProtocolContextAsync,
 //   DummyMiddlewareAsync,
 //   DummyProtocolServerSync
 // >;
 //111
 export type DummyProtocolAsync = Protocol<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareAsync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocol112 = Protocol<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareAsync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocol120 = Protocol<
-//   DummyProtocolRequestHandlerAsync,
+//   DummyProtocolContextAsync,
 //   DummyMiddlewareSyncOrAsync,
 //   DummyProtocolServerSync
 // >;
 export type DummyProtocol121 = Protocol<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareSyncOrAsync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocol122 = Protocol<
-  DummyProtocolRequestHandlerAsync,
+  DummyProtocolContextAsync,
   DummyMiddlewareSyncOrAsync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocol200 = Protocol<
-//   DummyProtocolRequestHandlerSyncOrAsync,
+//   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareSync,
 //   DummyProtocolServerSync
 // >;
 export type DummyProtocol201 = Protocol<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocol202 = Protocol<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocol210 = Protocol<
-//   DummyProtocolRequestHandlerSyncOrAsync,
+//   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareAsync,
 //   DummyProtocolServerSync
 // >;
 export type DummyProtocol211 = Protocol<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareAsync,
   DummyProtocolServerAsync
 >;
 export type DummyProtocol212 = Protocol<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareAsync,
   DummyProtocolServerSyncOrAsync
 >;
 // An Impossibility!!!
 // export type DummyProtocol220 = Protocol<
-//   DummyProtocolRequestHandlerSyncOrAsync,
+//   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareSyncOrAsync,
 //   DummyProtocolServerSync
 // >;
 export type DummyProtocol221 = Protocol<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSyncOrAsync,
   DummyProtocolServerAsync
 >;
 // 222
 export type DummyProtocolSyncOrAsync = Protocol<
-  DummyProtocolRequestHandlerSyncOrAsync,
+  DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSyncOrAsync,
   DummyProtocolServerSyncOrAsync
 >;
