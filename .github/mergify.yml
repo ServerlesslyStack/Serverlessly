@@ -1,5 +1,4 @@
-pull_request_rules:
-  [
+pull_request_rules: [
     {
       name: Block PR if it is NOT opened against main branch,
       conditions: [base!=main, label!=blocked],
@@ -38,17 +37,17 @@ pull_request_rules:
       conditions: [check-success=WIP, label=work-in-progress],
       actions: { label: { remove: [work-in-progress] } },
     },
-    {
-      name: Add pr-title-issue label,
-      conditions:
-        [check-failure=Semantic Pull Request, -closed, label!=pr-title-issue],
-      actions: { label: { add: [pr-title-issue] } },
-    },
-    {
-      name: Remove pr-title-issue label,
-      conditions: [check-success=Semantic Pull Request, label=pr-title-issue],
-      actions: { label: { remove: [pr-title-issue] } },
-    },
+    # {
+    #   name: Add pr-title-issue label,
+    #   conditions:
+    #     [check-failure=Semantic Pull Request, -closed, label!=pr-title-issue],
+    #   actions: { label: { add: [pr-title-issue] } },
+    # },
+    # {
+    #   name: Remove pr-title-issue label,
+    #   conditions: [check-success=Semantic Pull Request, label=pr-title-issue],
+    #   actions: { label: { remove: [pr-title-issue] } },
+    # },
     {
       name: Request author to change PR title,
       conditions: [label=pr-title-issue, -closed],
