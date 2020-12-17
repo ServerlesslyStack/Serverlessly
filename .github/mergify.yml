@@ -236,7 +236,7 @@ pull_request_rules: [
     },
     {
       name: Remove untested-code & pending-coverage-report labels,
-      conditions: [check-success=codecov/patch, label=untested-code],
+      conditions: [check-success=codecov/patch],
       actions: { label: { remove: [pending-coverage-report, untested-code] } },
     },
     # Tests
