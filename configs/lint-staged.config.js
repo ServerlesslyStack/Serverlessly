@@ -39,7 +39,7 @@ const lintStagedConfig = (stagedFiles) => {
 
   const semanticConfig = mm(stagedFiles, ['**/.github/semantic.yml']);
   if (semanticConfig.length) {
-    return `node -e "throw 'Editing semantic.yml file manually is not allowed. Update scripts/update-semantic.ts file instead.'"`;
+    return `node -e "throw 'Editing .github/semantic.yml file manually is not allowed. Update scripts/update-semantic.ts file instead.'"`;
   }
 
   const labelerConfig = mm(stagedFiles, ['**/.github/labeler.yml']);
