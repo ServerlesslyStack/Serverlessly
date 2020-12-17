@@ -8,6 +8,7 @@ const commitlintConfig = {
       2,
       'always',
       [
+        'build',
         'chore',
         'devops',
         'docs',
