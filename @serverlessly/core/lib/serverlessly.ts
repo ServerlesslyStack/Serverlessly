@@ -99,34 +99,89 @@ export interface Serverlessly<
   removeAllListeners(event?: ServerlesslyMiddlewaresEvent): this;
 }
 
+/**
+ * Options for initializing `Serverlessly` class
+ * @typeParam TProtocolContext - Generic type of `Protocol Context`
+ * @typeParam TMiddleware - Generic type of middlewares supported by `Serverlessly` instance
+ * @typeParam TProtocolServer - Generic type of `Protocol Server` capable of running a `Serverlessly` microservice on self-managed infrastructure
+ */
 export interface ServerlesslyProps<
   TProtocolContext,
   TMiddleware,
   TProtocolServer
 > {
+  /**
+   * Serverlessly `Protocol` which represents a network protocol like `http`
+   */
   protocol: Protocol<TProtocolContext, TMiddleware, TProtocolServer>;
+  /**
+   * `Middleware Engine` which processes middlewares
+   *
+   * @defaultValue `protocol.defaultMiddlewareEngine`
+   */
   middlewareEngine?: MiddlewareEngine<TProtocolContext, TMiddleware>;
 }
 
+/**
+ * Options for `getHandler()` configuration
+ * @typeParam TProtocolContext - Generic type of `Protocol Context`
+ * @typeParam TPlatformHandler - Generic type of handler returned by `getHandler()`
+ */
 export interface HandlerProps<TProtocolContext, TPlatformHandler> {
+  /**
+   * `Platform Adapter` which makes it possible to run a Serverlessly microservice on a specific platform like `AWS Lambda`
+   */
   platformAdapter: PlatformAdapter<TProtocolContext, TPlatformHandler>;
 }
 
+/**
+ * Serverlessly microservice instance
+ * @typeParam TProtocolContext - Generic type of `Protocol Context`
+ * @typeParam TMiddleware - Generic type of middlewares supported by this microservice
+ * @typeParam TProtocolServer - Generic type of `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
+ */
 export class Serverlessly<
   TProtocolContext,
   TMiddleware,
   TProtocolServer
 > extends EventEmitter {
+  /**
+   * `Middleware Engine` which processes middlewares
+   */
   protected readonly middlewareEngine: MiddlewareEngine<
     TProtocolContext,
     TMiddleware
   >;
+
+  /**
+   * `Protocol Server Factory` which can create `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
+   */
   protected readonly protocolServerFactory: ProtocolServerFactory<
     TProtocolContext,
     TProtocolServer
   >;
+
+  /**
+   * Array of middlewares
+   */
   protected middlewares: TMiddleware[] = [];
 
+  /**
+   * Creates a new vendor-neutral Serverlessly microservice
+   * @param props - Options used to initialize `Serverlessly` class
+   *
+   * @example
+   * ```ts
+   * new Serverlessly({ protocol: http });
+   * ```
+   * or
+   * ```ts
+   * new Serverlessly({
+   *    protocol: http,
+   *    middlewareEngine: myCustomMiddlewareEngine
+   * });
+   * ```
+   */
   constructor(
     props: ServerlesslyProps<TProtocolContext, TMiddleware, TProtocolServer>
   ) {
@@ -136,6 +191,18 @@ export class Serverlessly<
     this.protocolServerFactory = props.protocol.serverFactory;
   }
 
+  /**
+   * Registers one or more middleware(s)
+   * @param middleware - Middleware which represents modular consumer code
+   * @returns `this` Serverlessly instance
+   *
+   * @example
+   * ```ts
+   * new Serverlessly({ protocol: http })
+   *   .pipe(middleware1, middleware2)
+   *   .pipe(middleware3);
+   * ```
+   */
   pipe(...middleware: [TMiddleware, ...TMiddleware[]]): this {
     this.middlewares.push(...middleware);
     this.emit(
@@ -149,6 +216,19 @@ export class Serverlessly<
     return this;
   }
 
+  /**
+   * Generates handler for a specific platform
+   * @typeParam TPlatformHandler - Generic type of the generated handler
+   * @param props - Configuration object
+   * @returns Handler for a specific platform
+   *
+   * @example
+   * ```ts
+   * new Serverlessly({ protocol: http })
+   *   .pipe(middleware1)
+   *   .getHandler({ platformAdapter: awsLambda });
+   * ```
+   */
   getHandler<TPlatformHandler>(
     props: HandlerProps<TProtocolContext, TPlatformHandler>
   ): TPlatformHandler {
@@ -176,12 +256,30 @@ export class Serverlessly<
     }
   }
 
+  /**
+   * Generates `Protocol Server` capable of running this Serverlessly microservice on self-managed infrastructure
+   * @returns `Protocol Server` e.g. HTTP Server, gRPC Server, Web Socket Server etc.
+   *
+   * @example
+   * ```ts
+   * new Serverlessly({ protocol: http })
+   *   .pipe(...)
+   *   .getServer()
+   *   .listen(8080, 'example.com', () => {
+   *      console.info('Serverlessly HTTP Server Online');
+   *    });
+   * ```
+   */
   getServer(): TProtocolServer {
     return this.getHandler({
       platformAdapter: this.protocolServerFactory,
     });
   }
 
+  /**
+   * Returns hydrated `Protocol Context` which can be used with a custom `Protocol Server`
+   * @returns `Protocol Context` with all middleware codes properly processed with `Middleware Engine`
+   */
   getProtocolContext(): TProtocolContext {
     return this.getHandler({
       platformAdapter: <ProtocolServerAdapter<TProtocolContext>>(
