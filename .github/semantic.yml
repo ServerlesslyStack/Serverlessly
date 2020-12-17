@@ -1,6 +1,7 @@
 titleOnly: true
 allowMergeCommits: true
 types:
+  - build
   - chore
   - devops
   - docs
@@ -15,4 +16,5 @@ types:
   - style
   - test
 scopes:
+  - deps
   - core

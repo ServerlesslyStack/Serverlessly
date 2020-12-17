@@ -42,4 +42,4 @@ yarn test && yarn lint && yarn format
 
 ## Pull Request
 
-Pull Request titles are required to follow `Serverlessly Commit specification` which extends [Conventional Commit specification](https://www.conventionalcommits.org/en/v1.0.0/) and overrides types enum. Types `build` and `ci` from Conventional Commit specification have been removed. If you need to use them, you can use `devops` type. Complete set of types can be found [here](./configs/commitlint.config.js).
+Pull Request titles are required to follow `Serverlessly Commit specification` which extends [Conventional Commit specification](https://www.conventionalcommits.org/en/v1.0.0/) and overrides types enum. For example, type `ci` from Conventional Commit specification has been replaced with `devops`. Complete set of types & scopes can be found [here](./.github/semantic.yml).
