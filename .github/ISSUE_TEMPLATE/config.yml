@@ -3,12 +3,17 @@
   contact_links:
     [
       {
-        name: 'Question',
-        url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions?discussions_q=category%3AQ%26A',
+        name: '💡 Ideas',
+        url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions/categories/ideas',
+        about: Request a new feature,
+      },
+      {
+        name: '❓ Question',
+        url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions/categories/q-a',
         about: Get help from community,
       },
       {
-        name: 'Other',
+        name: '💬 Other',
         url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions',
         about: Other stuffs you need to discuss,
       },

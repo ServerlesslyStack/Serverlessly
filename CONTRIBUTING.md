@@ -12,7 +12,7 @@ The following is a set of guidelines for contributing to Serverlessly. These are
 
 ## How and What to Contribute
 
-- **Ideas:** Participate in Ideas threads in [Serverlessly Discussions -> Ideas](https://github.com/ServerlesslyStack/Serverlessly/discussions?discussions_q=category%3AIdeas) or start your own thread to have your voice heard.
+- **Ideas:** Participate in Ideas threads in [Serverlessly Discussions -> Ideas](https://github.com/ServerlesslyStack/Serverlessly/discussions/categories/ideas) or start your own thread to have your voice heard.
 
 - **Bugs:** Report bugs by starting a new thread in [Serverlessly Issues](https://github.com/ServerlesslyStack/Serverlessly/issues) (always search the issues first in case the bug has already been reported). [DO NOT REPORT SECURITY VULNERABILITIES AS ISSUES](./SECURITY.md).
 
