@@ -18,11 +18,11 @@
     "postinstall": "is-ci || (husky install && yarn fix-husky)"
   },
   "devDependencies": {
-    "@commitlint/cli": "^9.1.2",
+    "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^9.1.2",
     "@commitlint/config-lerna-scopes": "^11.0.0",
     "@commitlint/load": "^11.0.0",
-    "@types/jest": "^26.0.13",
+    "@types/jest": "^26.0.19",
     "@types/js-yaml": "^3.12.5",
     "@types/node": "^14.10.1",
     "@typescript-eslint/eslint-plugin": "^4.11.0",
@@ -30,7 +30,7 @@
     "eslint": "^7.16.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-tsdoc": "^0.2.7",
-    "husky": "^5.0.4",
+    "husky": "^5.0.6",
     "is-ci": "^2.0.0",
     "jest": "^26.4.2",
     "js-yaml": "^3.14.1",
@@ -40,7 +40,7 @@
     "prettier": "2.2.1",
     "ts-jest": "^26.4.4",
     "ts-node": "^9.1.1",
-    "typescript": "^4.0.2",
+    "typescript": "^4.1.3",
     "yarn": "^1.22.10"
   },
   "prettier": {
