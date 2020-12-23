@@ -2,7 +2,7 @@
   name: Security,
   on:
     {
-      push: { branches: [main] },
+      push: { branches: [main, releases/**] },
       pull_request: { branches: [main] },
       schedule: [{ cron: '0 11 * * 2' }],
     },

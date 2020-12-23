@@ -50,14 +50,36 @@ pull_request_rules: [
         {
           comment:
             {
-              message: 'You modified a sensitive file in `.github`, `scripts` or `configs` directory which is not allowed. Please, request the changes through [Issues](https://github.com/ServerlesslyStack/Serverlessly/issues).',
+              message: 'You modified a sensitive file in `.github`, `scripts` or `configs` directory which is not allowed. Please, request the changes through [Discussions](https://github.com/ServerlesslyStack/Serverlessly/discussions).',
+            },
+          label: { add: [sensitive] },
+        },
+    },
+    {
+      name: Unblock PR if it removes modified sensitive file,
+      conditions: [-files~=(^.github/|^scripts/|^configs/), label=sensitive],
+      actions: { label: { remove: [sensitive] } },
+    },
+    {
+      name: Block PR if it modifies dependencies,
+      conditions:
+        [
+          author!=@ServerlesslyStack/core,
+          'author!=dependabot[bot]',
+          files~=(yarn.lock|package.json),
+        ],
+      actions:
+        {
+          comment:
+            {
+              message: 'You modified `package.json` or `yarn.lock` file which is not allowed. Please, request the changes through [Discussions](https://github.com/ServerlesslyStack/Serverlessly/discussions).',
             },
           label: { add: [forbidden] },
         },
     },
     {
-      name: Unblock PR if it removes modified sensitive file,
-      conditions: [-files~=(^.github/|^scripts/|^configs/), label=forbidden],
+      name: Unblock PR if it removes dependency files,
+      conditions: [-files~=(yarn.lock|package.json), label=forbidden],
       actions: { label: { remove: [forbidden] } },
     },
     # Work in Progress
@@ -129,7 +151,8 @@ pull_request_rules: [
     },
     {
       name: Request author to resolve conflict,
-      conditions: [label=merge-conflict, -closed, -merged],
+      conditions:
+        ['author!=dependabot[bot]', label=merge-conflict, -closed, -merged],
       actions:
         {
           comment:
@@ -142,25 +165,23 @@ pull_request_rules: [
     {
       name: Add code-style-issue label,
       conditions:
-        [check-failure=Format Check, -closed, -merged, label!=code-style-issue],
+        [
+          check-failure~=(Lint|Format Check),
+          -closed,
+          -merged,
+          label!=code-style-issue,
+        ],
       actions: { label: { add: [code-style-issue] } },
     },
     {
-      name: Add pending-style-check label,
+      name: Remove code-style-issue label,
       conditions:
         [
-          label!=code-style-issue,
-          check-success!=Format Check,
-          -closed,
-          -merged,
-          label!=pending-style-check,
+          check-success=Lint,
+          check-success=Format Check,
+          label=code-style-issue,
         ],
-      actions: { label: { add: [pending-style-check] } },
-    },
-    {
-      name: Remove code-style-issue & pending-style-check labels,
-      conditions: [check-success=Format Check],
-      actions: { label: { remove: [pending-style-check, code-style-issue] } },
+      actions: { label: { remove: [code-style-issue] } },
     },
     {
       name: Request author to fix style issue,
@@ -178,7 +199,7 @@ pull_request_rules: [
       name: Add code-quality-issue label,
       conditions:
         [
-          check-failure~=(Lint|codeclimate),
+          check-failure=codeclimate,
           -closed,
           -merged,
           label!=code-quality-issue,
@@ -186,34 +207,9 @@ pull_request_rules: [
       actions: { label: { add: [code-quality-issue] } },
     },
     {
-      name: Add pending-quality-check label for Lint,
-      conditions:
-        [
-          label!=code-quality-issue,
-          check-success!=Lint,
-          -closed,
-          -merged,
-          label!=pending-quality-check,
-        ],
-      actions: { label: { add: [pending-quality-check] } },
-    },
-    {
-      name: Add pending-quality-check label for codeclimate,
-      conditions:
-        [
-          label!=code-quality-issue,
-          check-success!=codeclimate,
-          -closed,
-          -merged,
-          label!=pending-quality-check,
-        ],
-      actions: { label: { add: [pending-quality-check] } },
-    },
-    {
-      name: Remove code-quality-issue & pending-quality-check labels,
-      conditions: [check-success=Lint, check-success=codeclimate],
-      actions:
-        { label: { remove: [pending-quality-check, code-quality-issue] } },
+      name: Remove code-quality-issue label,
+      conditions: [check-success=codeclimate, label=code-quality-issue],
+      actions: { label: { remove: [code-quality-issue] } },
     },
     # Test Coverage
     {
@@ -223,21 +219,9 @@ pull_request_rules: [
       actions: { label: { add: [untested-code] } },
     },
     {
-      name: Add pending-coverage-report label for untested code,
-      conditions:
-        [
-          label!=untested-code,
-          check-success!=codecov/patch,
-          -closed,
-          -merged,
-          label!=pending-coverage-report,
-        ],
-      actions: { label: { add: [pending-coverage-report] } },
-    },
-    {
-      name: Remove untested-code & pending-coverage-report labels,
-      conditions: [check-success=codecov/patch],
-      actions: { label: { remove: [pending-coverage-report, untested-code] } },
+      name: Remove untested-code label,
+      conditions: [check-success=codecov/patch, label=untested-code],
+      actions: { label: { remove: [untested-code] } },
     },
     # Tests
     {
@@ -252,115 +236,7 @@ pull_request_rules: [
       actions: { label: { add: [test-failed] } },
     },
     {
-      name: Add pending-tests label for test on ubuntu-latest with node.js v10,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on ubuntu-latest with node.js v10,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on ubuntu-latest with node.js v12,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on ubuntu-latest with node.js v12,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on ubuntu-latest with node.js v14,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on ubuntu-latest with node.js v14,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on macos-latest with node.js v10,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on macos-latest with node.js v10,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on macos-latest with node.js v12,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on macos-latest with node.js v12,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on macos-latest with node.js v14,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on macos-latest with node.js v14,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on windows-latest with node.js v10,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on windows-latest with node.js v10,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on windows-latest with node.js v12,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on windows-latest with node.js v12,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Add pending-tests label for test on windows-latest with node.js v14,
-      conditions:
-        [
-          label!=test-failed,
-          check-success!=Test on windows-latest with node.js v14,
-          -closed,
-          -merged,
-          label!=pending-tests,
-        ],
-      actions: { label: { add: [pending-tests] } },
-    },
-    {
-      name: Remove test-failed & pending-tests labels,
+      name: Remove test-failed label,
       conditions:
         [
           check-success=Test on ubuntu-latest with node.js v10,
@@ -372,8 +248,9 @@ pull_request_rules: [
           check-success=Test on windows-latest with node.js v10,
           check-success=Test on windows-latest with node.js v12,
           check-success=Test on windows-latest with node.js v14,
+          label=test-failed,
         ],
-      actions: { label: { remove: [pending-tests, test-failed] } },
+      actions: { label: { remove: [test-failed] } },
     },
     # Security
     {
@@ -388,33 +265,31 @@ pull_request_rules: [
       actions: { label: { add: [security-issue] } },
     },
     {
-      name: Add pending-security-scan label for CodeQL Analysis,
+      name: Remove security-issue label,
       conditions:
         [
-          label!=security-issue,
-          check-success!=CodeQL Analysis,
-          -closed,
-          -merged,
-          label!=pending-security-scan,
+          check-success=CodeQL Analysis,
+          check-success=OSSAR Scan,
+          label=security-issue,
         ],
-      actions: { label: { add: [pending-security-scan] } },
+      actions: { label: { remove: [security-issue] } },
     },
+    # License
     {
-      name: Add pending-security-scan label for OSSAR Scan,
+      name: Add license-issue label,
       conditions:
         [
-          label!=security-issue,
-          check-success!=OSSAR Scan,
+          check-failure=License Compliance,
           -closed,
           -merged,
-          label!=pending-security-scan,
+          label!=license-issue,
         ],
-      actions: { label: { add: [pending-security-scan] } },
+      actions: { label: { add: [license-issue] } },
     },
     {
-      name: Remove security-issue & pending-security-scan labels,
-      conditions: [check-success=CodeQL Analysis, check-success=OSSAR Scan],
-      actions: { label: { remove: [pending-security-scan, security-issue] } },
+      name: Remove license-issue label,
+      conditions: [check-success=License Compliance, label=license-issue],
+      actions: { label: { remove: [license-issue] } },
     },
     # Review
     {
@@ -463,10 +338,27 @@ pull_request_rules: [
         [
           author!=@ServerlesslyStack/core,
           'author!=dependabot[bot]',
-          -label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|blocked|forbidden|pending-),
+          -label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden),
           label=approved,
+          check-success=Lint,
+          check-success=Format Check,
+          check-success=codeclimate,
+          check-success=codecov/patch,
+          check-success=Test on ubuntu-latest with node.js v10,
+          check-success=Test on ubuntu-latest with node.js v12,
+          check-success=Test on ubuntu-latest with node.js v14,
+          check-success=Test on macos-latest with node.js v10,
+          check-success=Test on macos-latest with node.js v12,
+          check-success=Test on macos-latest with node.js v14,
+          check-success=Test on windows-latest with node.js v10,
+          check-success=Test on windows-latest with node.js v12,
+          check-success=Test on windows-latest with node.js v14,
+          check-success=CodeQL Analysis,
+          check-success=OSSAR Scan,
+          check-success=License Compliance,
           -closed,
           -merged,
+          label!=merge-in-progress,
           label!=ready-to-merge,
         ],
       actions: { label: { add: [ready-to-merge] } },
@@ -476,9 +368,26 @@ pull_request_rules: [
       conditions:
         [
           'author=dependabot[bot]',
-          -label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|blocked|forbidden|pending-),
+          -label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden),
+          check-success=Lint,
+          check-success=Format Check,
+          check-success=codeclimate,
+          check-success=codecov/patch,
+          check-success=Test on ubuntu-latest with node.js v10,
+          check-success=Test on ubuntu-latest with node.js v12,
+          check-success=Test on ubuntu-latest with node.js v14,
+          check-success=Test on macos-latest with node.js v10,
+          check-success=Test on macos-latest with node.js v12,
+          check-success=Test on macos-latest with node.js v14,
+          check-success=Test on windows-latest with node.js v10,
+          check-success=Test on windows-latest with node.js v12,
+          check-success=Test on windows-latest with node.js v14,
+          check-success=CodeQL Analysis,
+          check-success=OSSAR Scan,
+          check-success=License Compliance,
           -closed,
           -merged,
+          label!=merge-in-progress,
           label!=ready-to-merge,
         ],
       actions: { label: { add: [ready-to-merge] } },
@@ -488,18 +397,35 @@ pull_request_rules: [
       conditions:
         [
           author=@ServerlesslyStack/core,
-          -label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|blocked|forbidden|pending-),
+          -label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden),
+          check-success=Lint,
+          check-success=Format Check,
+          check-success=codeclimate,
+          check-success=codecov/patch,
+          check-success=Test on ubuntu-latest with node.js v10,
+          check-success=Test on ubuntu-latest with node.js v12,
+          check-success=Test on ubuntu-latest with node.js v14,
+          check-success=Test on macos-latest with node.js v10,
+          check-success=Test on macos-latest with node.js v12,
+          check-success=Test on macos-latest with node.js v14,
+          check-success=Test on windows-latest with node.js v10,
+          check-success=Test on windows-latest with node.js v12,
+          check-success=Test on windows-latest with node.js v14,
+          check-success=CodeQL Analysis,
+          check-success=OSSAR Scan,
+          check-success=License Compliance,
           -closed,
           -merged,
+          label!=merge-in-progress,
           label!=ready-to-merge,
         ],
       actions: { label: { add: [ready-to-merge] } },
     },
     {
-      name: Remove ready-to-merge label,
+      name: Remove ready-to-merge label upon PR issues,
       conditions:
         [
-          label~=(pr-title-issue|merge-conflict|revision-needed|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|blocked|forbidden|pending-),
+          label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden),
           label=ready-to-merge,
         ],
       actions: { label: { remove: [ready-to-merge] } },
@@ -516,10 +442,127 @@ pull_request_rules: [
       actions: { label: { remove: [ready-to-merge] } },
     },
     {
+      name: Remove ready-to-merge label when Lint check status goes to pending or failure state,
+      conditions: [check-success!=Lint, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Format Check check status goes to pending or failure state,
+      conditions: [check-success!=Format Check, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when codeclimate check status goes to pending or failure state,
+      conditions: [check-success!=codeclimate, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when codecov/patch check status goes to pending or failure state,
+      conditions: [check-success!=codecov/patch, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on ubuntu-latest with node.js v10 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on ubuntu-latest with node.js v10,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on ubuntu-latest with node.js v12 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on ubuntu-latest with node.js v12,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on ubuntu-latest with node.js v14 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on ubuntu-latest with node.js v14,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on macos-latest with node.js v10 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on macos-latest with node.js v10,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on macos-latest with node.js v12 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on macos-latest with node.js v12,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on macos-latest with node.js v14 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on macos-latest with node.js v14,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on windows-latest with node.js v10 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on windows-latest with node.js v10,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on windows-latest with node.js v12 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on windows-latest with node.js v12,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when Test on windows-latest with node.js v14 check status goes to pending or failure state,
+      conditions:
+        [
+          check-success!=Test on windows-latest with node.js v14,
+          label=ready-to-merge,
+        ],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when CodeQL Analysis check status goes to pending or failure state,
+      conditions: [check-success!=CodeQL Analysis, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when OSSAR Scan check status goes to pending or failure state,
+      conditions: [check-success!=OSSAR Scan, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
+      name: Remove ready-to-merge label when License Compliance check status goes to pending or failure state,
+      conditions: [check-success!=License Compliance, label=ready-to-merge],
+      actions: { label: { remove: [ready-to-merge] } },
+    },
+    {
       name: Remove ready-to-merge label if PR gets closed,
       conditions: [closed, label=ready-to-merge],
       actions: { label: { remove: [ready-to-merge] } },
     },
+    # Remove WIP
     {
       name: Request author to remove WIP word from title for PR merge,
       conditions:
@@ -575,32 +618,44 @@ pull_request_rules: [
             },
         },
     },
-    # Merge
+    # Merge in Progress
     {
-      name: Notify about automatic merge,
+      name: Merge in Progress,
       conditions:
-        [
-          'author!=dependabot[bot]',
-          label=ready-to-merge,
-          label!=work-in-progress,
-          -closed,
-          -merged,
-        ],
+        [label=ready-to-merge, label!=work-in-progress, -closed, -merged],
       actions:
         {
+          label: { add: [merge-in-progress], remove: [ready-to-merge] },
           comment:
             {
               message: 'Automatic merge in progress.. This Pull Request will be updated from {{base}} branch before the merge (do not update manually)',
             },
         },
     },
+    # Automatic Merge
     {
-      name: Automatic merge PR of bots or outsiders,
+      name: Automatic merge PR of dependabot or outsiders,
       conditions:
         [
           author!=@ServerlesslyStack/core,
-          label=ready-to-merge,
-          label!=work-in-progress,
+          label=merge-in-progress,
+          -label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden),
+          check-success=Lint,
+          check-success=Format Check,
+          check-success=codeclimate,
+          check-success=codecov/patch,
+          check-success=Test on ubuntu-latest with node.js v10,
+          check-success=Test on ubuntu-latest with node.js v12,
+          check-success=Test on ubuntu-latest with node.js v14,
+          check-success=Test on macos-latest with node.js v10,
+          check-success=Test on macos-latest with node.js v12,
+          check-success=Test on macos-latest with node.js v14,
+          check-success=Test on windows-latest with node.js v10,
+          check-success=Test on windows-latest with node.js v12,
+          check-success=Test on windows-latest with node.js v14,
+          check-success=CodeQL Analysis,
+          check-success=OSSAR Scan,
+          check-success=License Compliance,
           -closed,
           -merged,
         ],
@@ -612,8 +667,24 @@ pull_request_rules: [
       conditions:
         [
           author=@ServerlesslyStack/core,
-          label=ready-to-merge,
-          label!=work-in-progress,
+          label=merge-in-progress,
+          -label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden),
+          check-success=Lint,
+          check-success=Format Check,
+          check-success=codeclimate,
+          check-success=codecov/patch,
+          check-success=Test on ubuntu-latest with node.js v10,
+          check-success=Test on ubuntu-latest with node.js v12,
+          check-success=Test on ubuntu-latest with node.js v14,
+          check-success=Test on macos-latest with node.js v10,
+          check-success=Test on macos-latest with node.js v12,
+          check-success=Test on macos-latest with node.js v14,
+          check-success=Test on windows-latest with node.js v10,
+          check-success=Test on windows-latest with node.js v12,
+          check-success=Test on windows-latest with node.js v14,
+          check-success=CodeQL Analysis,
+          check-success=OSSAR Scan,
+          check-success=License Compliance,
           -closed,
           -merged,
         ],
@@ -623,36 +694,18 @@ pull_request_rules: [
     # Cleanup
     {
       name: Cleanup on automatic merge,
-      conditions: [merged, label=ready-to-merge, label!=work-in-progress],
+      conditions: [merged, label=merge-in-progress],
       actions:
         {
-          label: { add: [auto-merged], remove: [ready-to-merge] },
+          label: { add: [auto-merged], remove: [merge-in-progress] },
           comment:
             { message: 'Automatic PR merge successful. :tada: :tada: :tada:' },
         },
     },
     {
-      name: Cleanup any pending labels on manual merge,
-      conditions: [merged, label!=ready-to-merge],
-      actions:
-        {
-          label:
-            {
-              remove:
-                [
-                  pending-style-check,
-                  pending-quality-check,
-                  pending-coverage-report,
-                  pending-tests,
-                  pending-security-scan,
-                ],
-            },
-        },
-    },
-    {
-      name: Cleanup work-in-progress label on manual merge,
-      conditions: [merged, label=work-in-progress],
-      actions: { label: { remove: [work-in-progress] } },
+      name: Cleanup labels on manual merge,
+      conditions: [merged, label!=merge-in-progress],
+      actions: { label: { remove: [ready-to-merge, work-in-progress] } },
     },
     {
       name: Thank on successful merge,
