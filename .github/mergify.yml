@@ -15,11 +15,6 @@ pull_request_rules: [
       conditions: [author=@ServerlesslyStack/core, label!=by-core-team],
       actions: { label: { add: [by-core-team] } },
     },
-    {
-      name: Add by-dependabot label,
-      conditions: ['author=dependabot[bot]', label!=by-dependabot],
-      actions: { label: { add: [by-dependabot] } },
-    },
     # Base Branch
     {
       name: Block PR if it is NOT opened against main branch,
@@ -190,7 +185,7 @@ pull_request_rules: [
         {
           comment:
             {
-              message: 'Please, fix code style issues. Run `yarn lint && yarn format-check` for assistance',
+              message: 'Please, fix code style issues. Run `yarn lint && yarn format-check` for assistance.',
             },
         },
     },
@@ -620,7 +615,7 @@ pull_request_rules: [
     },
     # Merge in Progress
     {
-      name: Merge in Progress,
+      name: Add merge-in-progress label,
       conditions:
         [label=ready-to-merge, label!=work-in-progress, -closed, -merged],
       actions:
@@ -628,9 +623,18 @@ pull_request_rules: [
           label: { add: [merge-in-progress], remove: [ready-to-merge] },
           comment:
             {
-              message: 'Automatic merge in progress.. This Pull Request will be updated from {{base}} branch before the merge (do not update manually)',
+              message: 'Automatic merge in progress.. This Pull Request will be updated from {{base}} branch before the merge (do not update manually).',
             },
         },
+    },
+    {
+      name: Remove merge-in-progress label,
+      conditions:
+        [
+          label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|license-issue),
+          label=merge-in-progress,
+        ],
+      actions: { label: { remove: [merge-in-progress] } },
     },
     # Automatic Merge
     {
