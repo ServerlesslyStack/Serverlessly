@@ -1,0 +1,15 @@
+{
+  version: 2,
+  updates:
+    [
+      {
+        package-ecosystem: npm,
+        directory: '/',
+        schedule: { interval: daily },
+        open-pull-requests-limit: 10,
+        commit-message: { prefix: build, prefix-development: env },
+        rebase-strategy: disabled,
+        versioning-strategy: increase,
+      },
+    ],
+}
