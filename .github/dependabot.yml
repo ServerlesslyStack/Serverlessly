@@ -7,9 +7,10 @@
         directory: '/',
         schedule: { interval: daily },
         open-pull-requests-limit: 10,
-        commit-message: { prefix: build, prefix-development: env },
+        commit-message: { prefix: env },
         rebase-strategy: disabled,
         versioning-strategy: increase,
+        labels: [by-dependabot, node-dependencies],
       },
     ],
 }
