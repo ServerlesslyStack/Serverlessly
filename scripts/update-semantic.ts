@@ -19,12 +19,7 @@ loadCommitlintConfig(
     safeDump({
       ...semanticConfig,
       types: config.rules['type-enum']?.[2],
-      scopes: [
-        'deps',
-        ...(config.rules['scope-enum']?.[2]
-          ? config.rules['scope-enum'][2]
-          : []),
-      ],
+      scopes: config.rules['scope-enum']?.[2],
     })
   );
 });
