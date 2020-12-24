@@ -16,3 +16,4 @@ types:
   - test
 scopes:
   - core
+  - protocol-tcp
