@@ -5,7 +5,12 @@
       {
         name: '💡 Ideas',
         url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions/categories/ideas',
-        about: Request a new feature,
+        about: Request a new feature (loosely-defined),
+      },
+      {
+        name: '📚 RFC',
+        url: 'https://github.com/ServerlesslyStack/Serverlessly/discussions/categories/rfc',
+        about: Get feedback for big planned change or feature,
       },
       {
         name: '❓ Question',

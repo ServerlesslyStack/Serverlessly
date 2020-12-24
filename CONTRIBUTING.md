@@ -42,4 +42,10 @@ yarn test && yarn lint && yarn format
 
 ## Pull Request
 
+It's always useful to communicate in advance through [Serverlessly Discussions](https://github.com/ServerlesslyStack/Serverlessly/discussions/), because sometimes, someone is already working in this space, so maybe it's worth collaborating with them instead of duplicating the efforts.
+
 Pull Request titles are required to follow `Serverlessly Commit specification` which extends [Conventional Commit specification](https://www.conventionalcommits.org/en/v1.0.0/) and overrides types enum. For example, type `build`, `ci` from Conventional Commit specification have been replaced with `devops`. Complete set of types & scopes can be found [here](./.github/semantic.yml).
+
+It's a good idea to indicate that work is in progress before you're ready to merge. This can be done by putting 🚧 emoji, WIP or Work in Progress (usually as suffix) in the PR title.
+
+If the PR fixes a bug, write "Fixes #123" in the body without quotes where 123 is issue number. If an issue doesn't exist for the bug, create that first. If the PR implements a feature, write "Closes #123" in the body without quotes where 123 is issue number.
