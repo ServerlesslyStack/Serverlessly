@@ -21,6 +21,9 @@ export type ProtocolServerFactory<
  * A new Serverlessly `Protocol` needs to implement this interface
  */
 export interface Protocol<TProtocolContext, TMiddleware, TProtocolServer> {
+  /**
+   * name of the `Protocol`
+   */
   name: string;
   /**
    * `Middleware Engine` available with Serverlessly `Protocol`
