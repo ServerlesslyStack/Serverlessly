@@ -117,7 +117,7 @@ export interface ServerlesslyProps<
   /**
    * `Middleware Engine` which processes middlewares
    *
-   * @defaultValue `protocol.defaultMiddlewareEngine`
+   * @defaultValue `protocol.middlewareEngine`
    */
   middlewareEngine?: MiddlewareEngine<TProtocolContext, TMiddleware>;
 }
@@ -187,8 +187,14 @@ export class Serverlessly<
   ) {
     super();
     this.middlewareEngine =
-      props.middlewareEngine || props.protocol.defaultMiddlewareEngine;
+      props.middlewareEngine || props.protocol.middlewareEngine;
     this.protocolServerFactory = props.protocol.serverFactory;
+    setImmediate(() => {
+      this.emit(
+        'LOG',
+        `Serverlessly microservice initialized successfully with ${props.protocol.name} protocol.`
+      );
+    });
   }
 
   /**
