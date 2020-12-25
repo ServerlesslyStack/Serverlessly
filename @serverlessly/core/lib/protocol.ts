@@ -21,10 +21,11 @@ export type ProtocolServerFactory<
  * A new Serverlessly `Protocol` needs to implement this interface
  */
 export interface Protocol<TProtocolContext, TMiddleware, TProtocolServer> {
+  name: string;
   /**
-   * `Middleware Engine` available with Serverlessly `Protocol` by default
+   * `Middleware Engine` available with Serverlessly `Protocol`
    */
-  defaultMiddlewareEngine: MiddlewareEngine<TProtocolContext, TMiddleware>;
+  middlewareEngine: MiddlewareEngine<TProtocolContext, TMiddleware>;
   /**
    * `Protocol Server Factory` which can create `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
    */

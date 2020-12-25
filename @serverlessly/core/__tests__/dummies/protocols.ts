@@ -204,315 +204,375 @@ export type DummyProtocolSyncOrAsync = Protocol<
 // Concrete Dummy Protocols
 //000
 export const dummyProtocolSync: DummyProtocolSync = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSync,
+  name: 'dummyProtocolSync',
+  middlewareEngine: dummyMiddlewareEngineSync,
   serverFactory: dummyProtocolServerFactorySync,
 };
 
 export const dummyProtocol001: DummyProtocol001 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSync,
+  name: 'dummyProtocol001',
+  middlewareEngine: dummyMiddlewareEngineSync,
   serverFactory: dummyProtocolServerFactory01,
 };
 
 export const dummyProtocol002: DummyProtocol002 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSync,
+  name: 'dummyProtocol002',
+  middlewareEngine: dummyMiddlewareEngineSync,
   serverFactory: dummyProtocolServerFactory02,
 };
 
 export const dummyProtocol101: DummyProtocol101 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine10,
+  name: 'dummyProtocol101',
+  middlewareEngine: dummyMiddlewareEngine10,
   serverFactory: dummyProtocolServerFactoryAsync,
 };
 
 export const dummyProtocol102: DummyProtocol102 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine10,
+  name: 'dummyProtocol102',
+  middlewareEngine: dummyMiddlewareEngine10,
   serverFactory: dummyProtocolServerFactory12,
 };
 
 //111
 export const dummyProtocolAsync: DummyProtocolAsync = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineAsync,
+  name: 'dummyProtocolAsync',
+  middlewareEngine: dummyMiddlewareEngineAsync,
   serverFactory: dummyProtocolServerFactoryAsync,
 };
 
 export const dummyProtocol112: DummyProtocol112 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineAsync,
+  name: 'dummyProtocol112',
+  middlewareEngine: dummyMiddlewareEngineAsync,
   serverFactory: dummyProtocolServerFactory12,
 };
 
 export const dummyProtocol121: DummyProtocol121 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine12,
+  name: 'dummyProtocol121',
+  middlewareEngine: dummyMiddlewareEngine12,
   serverFactory: dummyProtocolServerFactoryAsync,
 };
 
 export const dummyProtocol122: DummyProtocol122 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine12,
+  name: 'dummyProtocol122',
+  middlewareEngine: dummyMiddlewareEngine12,
   serverFactory: dummyProtocolServerFactory12,
 };
 
 export const dummyProtocol201: DummyProtocol201 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine20,
+  name: 'dummyProtocol201',
+  middlewareEngine: dummyMiddlewareEngine20,
   serverFactory: dummyProtocolServerFactory21,
 };
 
 export const dummyProtocol202: DummyProtocol202 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine20,
+  name: 'dummyProtocol202',
+  middlewareEngine: dummyMiddlewareEngine20,
   serverFactory: dummyProtocolServerFactorySyncOrAsync,
 };
 
 export const dummyProtocol211: DummyProtocol211 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine21,
+  name: 'dummyProtocol211',
+  middlewareEngine: dummyMiddlewareEngine21,
   serverFactory: dummyProtocolServerFactory21,
 };
 
 export const dummyProtocol212: DummyProtocol212 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine21,
+  name: 'dummyProtocol212',
+  middlewareEngine: dummyMiddlewareEngine21,
   serverFactory: dummyProtocolServerFactorySyncOrAsync,
 };
 
 export const dummyProtocol221: DummyProtocol221 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSyncOrAsync,
+  name: 'dummyProtocol221',
+  middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
   serverFactory: dummyProtocolServerFactory21,
 };
 
 //222
 export const dummyProtocolSyncOrAsync: DummyProtocolSyncOrAsync = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSyncOrAsync,
+  name: 'dummyProtocolSyncOrAsync',
+  middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
   serverFactory: dummyProtocolServerFactorySyncOrAsync,
 };
 
-// Faulty Dummy Protocols with Faulty defaultMiddlewareEngine (ME suffix)
+// Faulty Dummy Protocols with Faulty middlewareEngine (ME suffix)
 //000
 export const faultyProtocolSyncME: DummyProtocolSync = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSync,
+  name: 'faultyProtocolSyncME',
+  middlewareEngine: faultyMiddlewareEngineSync,
   serverFactory: dummyProtocolServerFactorySync,
 };
 
 export const faultyProtocol001ME: DummyProtocol001 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSync,
+  name: 'faultyProtocol001ME',
+  middlewareEngine: faultyMiddlewareEngineSync,
   serverFactory: dummyProtocolServerFactory01,
 };
 
 export const faultyProtocol002ME: DummyProtocol002 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSync,
+  name: 'faultyProtocol002ME',
+  middlewareEngine: faultyMiddlewareEngineSync,
   serverFactory: dummyProtocolServerFactory02,
 };
 
 export const faultyProtocol101ME: DummyProtocol101 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine10,
+  name: 'faultyProtocol101ME',
+  middlewareEngine: faultyMiddlewareEngine10,
   serverFactory: dummyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol102ME: DummyProtocol102 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine10,
+  name: 'faultyProtocol102ME',
+  middlewareEngine: faultyMiddlewareEngine10,
   serverFactory: dummyProtocolServerFactory12,
 };
 
 //111
 export const faultyProtocolAsyncME: DummyProtocolAsync = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineAsync,
+  name: 'faultyProtocolAsyncME',
+  middlewareEngine: faultyMiddlewareEngineAsync,
   serverFactory: dummyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol112ME: DummyProtocol112 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineAsync,
+  name: 'faultyProtocol112ME',
+  middlewareEngine: faultyMiddlewareEngineAsync,
   serverFactory: dummyProtocolServerFactory12,
 };
 
 export const faultyProtocol121ME: DummyProtocol121 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine12,
+  name: 'faultyProtocol121ME',
+  middlewareEngine: faultyMiddlewareEngine12,
   serverFactory: dummyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol122ME: DummyProtocol122 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine12,
+  name: 'faultyProtocol122ME',
+  middlewareEngine: faultyMiddlewareEngine12,
   serverFactory: dummyProtocolServerFactory12,
 };
 
 export const faultyProtocol201ME: DummyProtocol201 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine20,
+  name: 'faultyProtocol201ME',
+  middlewareEngine: faultyMiddlewareEngine20,
   serverFactory: dummyProtocolServerFactory21,
 };
 
 export const faultyProtocol202ME: DummyProtocol202 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine20,
+  name: 'faultyProtocol202ME',
+  middlewareEngine: faultyMiddlewareEngine20,
   serverFactory: dummyProtocolServerFactorySyncOrAsync,
 };
 
 export const faultyProtocol211ME: DummyProtocol211 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine21,
+  name: 'faultyProtocol211ME',
+  middlewareEngine: faultyMiddlewareEngine21,
   serverFactory: dummyProtocolServerFactory21,
 };
 
 export const faultyProtocol212ME: DummyProtocol212 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine21,
+  name: 'faultyProtocol212ME',
+  middlewareEngine: faultyMiddlewareEngine21,
   serverFactory: dummyProtocolServerFactorySyncOrAsync,
 };
 
 export const faultyProtocol221ME: DummyProtocol221 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+  name: 'faultyProtocol221ME',
+  middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
   serverFactory: dummyProtocolServerFactory21,
 };
 
 //222
 export const faultyProtocolSyncOrAsyncME: DummyProtocolSyncOrAsync = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+  name: 'faultyProtocolSyncOrAsyncME',
+  middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
   serverFactory: dummyProtocolServerFactorySyncOrAsync,
 };
 
 // Faulty Dummy Protocols with Faulty serverFactory (SF suffix)
 //000
 export const faultyProtocolSyncSF: DummyProtocolSync = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSync,
+  name: 'faultyProtocolSyncSF',
+  middlewareEngine: dummyMiddlewareEngineSync,
   serverFactory: faultyProtocolServerFactorySync,
 };
 
 export const faultyProtocol001SF: DummyProtocol001 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSync,
+  name: 'faultyProtocol001SF',
+  middlewareEngine: dummyMiddlewareEngineSync,
   serverFactory: faultyProtocolServerFactory01,
 };
 
 export const faultyProtocol002SF: DummyProtocol002 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSync,
+  name: 'faultyProtocol002SF',
+  middlewareEngine: dummyMiddlewareEngineSync,
   serverFactory: faultyProtocolServerFactory02,
 };
 
 export const faultyProtocol101SF: DummyProtocol101 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine10,
+  name: 'faultyProtocol101SF',
+  middlewareEngine: dummyMiddlewareEngine10,
   serverFactory: faultyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol102SF: DummyProtocol102 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine10,
+  name: 'faultyProtocol102SF',
+  middlewareEngine: dummyMiddlewareEngine10,
   serverFactory: faultyProtocolServerFactory12,
 };
 
 //111
 export const faultyProtocolAsyncSF: DummyProtocolAsync = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineAsync,
+  name: 'faultyProtocolAsyncSF',
+  middlewareEngine: dummyMiddlewareEngineAsync,
   serverFactory: faultyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol112SF: DummyProtocol112 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineAsync,
+  name: 'faultyProtocol112SF',
+  middlewareEngine: dummyMiddlewareEngineAsync,
   serverFactory: faultyProtocolServerFactory12,
 };
 
 export const faultyProtocol121SF: DummyProtocol121 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine12,
+  name: 'faultyProtocol121SF',
+  middlewareEngine: dummyMiddlewareEngine12,
   serverFactory: faultyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol122SF: DummyProtocol122 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine12,
+  name: 'faultyProtocol122SF',
+  middlewareEngine: dummyMiddlewareEngine12,
   serverFactory: faultyProtocolServerFactory12,
 };
 
 export const faultyProtocol201SF: DummyProtocol201 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine20,
+  name: 'faultyProtocol201SF',
+  middlewareEngine: dummyMiddlewareEngine20,
   serverFactory: faultyProtocolServerFactory21,
 };
 
 export const faultyProtocol202SF: DummyProtocol202 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine20,
+  name: 'faultyProtocol202SF',
+  middlewareEngine: dummyMiddlewareEngine20,
   serverFactory: faultyProtocolServerFactorySyncOrAsync,
 };
 
 export const faultyProtocol211SF: DummyProtocol211 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine21,
+  name: 'faultyProtocol211SF',
+  middlewareEngine: dummyMiddlewareEngine21,
   serverFactory: faultyProtocolServerFactory21,
 };
 
 export const faultyProtocol212SF: DummyProtocol212 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngine21,
+  name: 'faultyProtocol212SF',
+  middlewareEngine: dummyMiddlewareEngine21,
   serverFactory: faultyProtocolServerFactorySyncOrAsync,
 };
 
 export const faultyProtocol221SF: DummyProtocol221 = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSyncOrAsync,
+  name: 'faultyProtocol221SF',
+  middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
   serverFactory: faultyProtocolServerFactory21,
 };
 
 //222
 export const faultyProtocolSyncOrAsyncSF: DummyProtocolSyncOrAsync = {
-  defaultMiddlewareEngine: dummyMiddlewareEngineSyncOrAsync,
+  name: 'faultyProtocolSyncOrAsyncSF',
+  middlewareEngine: dummyMiddlewareEngineSyncOrAsync,
   serverFactory: faultyProtocolServerFactorySyncOrAsync,
 };
 
-// Faulty Dummy Protocols with both Faulty defaultMiddlewareEngine & serverFactory (B suffix)
+// Faulty Dummy Protocols with both Faulty middlewareEngine & serverFactory (B suffix)
 //000
 export const faultyProtocolSyncB: DummyProtocolSync = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSync,
+  name: 'faultyProtocolSyncB',
+  middlewareEngine: faultyMiddlewareEngineSync,
   serverFactory: faultyProtocolServerFactorySync,
 };
 
 export const faultyProtocol001B: DummyProtocol001 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSync,
+  name: 'faultyProtocol001B',
+  middlewareEngine: faultyMiddlewareEngineSync,
   serverFactory: faultyProtocolServerFactory01,
 };
 
 export const faultyProtocol002B: DummyProtocol002 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSync,
+  name: 'faultyProtocol002B',
+  middlewareEngine: faultyMiddlewareEngineSync,
   serverFactory: faultyProtocolServerFactory02,
 };
 
 export const faultyProtocol101B: DummyProtocol101 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine10,
+  name: 'faultyProtocol101B',
+  middlewareEngine: faultyMiddlewareEngine10,
   serverFactory: faultyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol102B: DummyProtocol102 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine10,
+  name: 'faultyProtocol102B',
+  middlewareEngine: faultyMiddlewareEngine10,
   serverFactory: faultyProtocolServerFactory12,
 };
 
 //111
 export const faultyProtocolAsyncB: DummyProtocolAsync = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineAsync,
+  name: 'faultyProtocolAsyncB',
+  middlewareEngine: faultyMiddlewareEngineAsync,
   serverFactory: faultyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol112B: DummyProtocol112 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineAsync,
+  name: 'faultyProtocol112B',
+  middlewareEngine: faultyMiddlewareEngineAsync,
   serverFactory: faultyProtocolServerFactory12,
 };
 
 export const faultyProtocol121B: DummyProtocol121 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine12,
+  name: 'faultyProtocol121B',
+  middlewareEngine: faultyMiddlewareEngine12,
   serverFactory: faultyProtocolServerFactoryAsync,
 };
 
 export const faultyProtocol122B: DummyProtocol122 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine12,
+  name: 'faultyProtocol122B',
+  middlewareEngine: faultyMiddlewareEngine12,
   serverFactory: faultyProtocolServerFactory12,
 };
 
 export const faultyProtocol201B: DummyProtocol201 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine20,
+  name: 'faultyProtocol201B',
+  middlewareEngine: faultyMiddlewareEngine20,
   serverFactory: faultyProtocolServerFactory21,
 };
 
 export const faultyProtocol202B: DummyProtocol202 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine20,
+  name: 'faultyProtocol202B',
+  middlewareEngine: faultyMiddlewareEngine20,
   serverFactory: faultyProtocolServerFactorySyncOrAsync,
 };
 
 export const faultyProtocol211B: DummyProtocol211 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine21,
+  name: 'faultyProtocol211B',
+  middlewareEngine: faultyMiddlewareEngine21,
   serverFactory: faultyProtocolServerFactory21,
 };
 
 export const faultyProtocol212B: DummyProtocol212 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngine21,
+  name: 'faultyProtocol212B',
+  middlewareEngine: faultyMiddlewareEngine21,
   serverFactory: faultyProtocolServerFactorySyncOrAsync,
 };
 
 export const faultyProtocol221B: DummyProtocol221 = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+  name: 'faultyProtocol221B',
+  middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
   serverFactory: faultyProtocolServerFactory21,
 };
 
 //222
 export const faultyProtocolSyncOrAsyncB: DummyProtocolSyncOrAsync = {
-  defaultMiddlewareEngine: faultyMiddlewareEngineSyncOrAsync,
+  name: 'faultyProtocolSyncOrAsyncB',
+  middlewareEngine: faultyMiddlewareEngineSyncOrAsync,
   serverFactory: faultyProtocolServerFactorySyncOrAsync,
 };

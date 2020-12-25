@@ -21,7 +21,21 @@ const middlewareEngine = dummyMiddlewareEngineSync;
 const middlewares = dummyMiddlewaresSync;
 const platformAdapter = dummyPlatformAdapterSync;
 
+function finishEventLoop() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
 describe('Serverlessly Constructor Tests', () => {
+  let logsListener: jest.Mock;
+
+  beforeEach(() => {
+    logsListener = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('Serverlessly is successfully initialized without Middleware Engine', () => {
     expect(new Serverlessly({ protocol })).toBeTruthy();
   });
@@ -37,9 +51,7 @@ describe('Serverlessly Constructor Tests', () => {
       middlewareEngine,
     });
 
-    expect(serverlessly1['middlewareEngine']).toBe(
-      protocol.defaultMiddlewareEngine
-    );
+    expect(serverlessly1['middlewareEngine']).toBe(protocol.middlewareEngine);
 
     expect(serverlessly2['middlewareEngine']).toBe(middlewareEngine);
   });
@@ -54,6 +66,21 @@ describe('Serverlessly Constructor Tests', () => {
     expect(serverlessly1['protocolServerFactory']).toBe(protocol.serverFactory);
 
     expect(serverlessly2['protocolServerFactory']).toBe(protocol.serverFactory);
+  });
+
+  test('Serverlessly emits log once after initialization', async () => {
+    new Serverlessly({ protocol }).on('LOG', logsListener);
+    await finishEventLoop();
+    expect(logsListener).toBeCalled();
+    expect(logsListener).toBeCalledTimes(1);
+  });
+
+  test('Serverlessly emits correct log after initialization', async () => {
+    new Serverlessly({ protocol }).on('LOG', logsListener);
+    await finishEventLoop();
+    expect(logsListener).toBeCalledWith(
+      `Serverlessly microservice initialized successfully with ${protocol.name} protocol.`
+    );
   });
 });
 
