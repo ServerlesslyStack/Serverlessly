@@ -7,22 +7,22 @@ import {
 // Dummy Protocol Servers
 export class DummyProtocolServerSync {
   constructor(
-    private prefix: string,
-    private protocolContext: DummyProtocolContextSync
+    private protocolContext: DummyProtocolContextSync,
+    private prefix?: string
   ) {}
 }
 export class DummyProtocolServerAsync {
   constructor(
-    private prefix: string,
     private protocolContext:
       | DummyProtocolContextAsync
       | DummyProtocolContextSync
-      | DummyProtocolContextSyncOrAsync
+      | DummyProtocolContextSyncOrAsync,
+    private prefix?: string
   ) {}
 }
 export class DummyProtocolServerSyncOrAsync {
   constructor(
-    private prefix: string,
-    private protocolContext: DummyProtocolContextSyncOrAsync
+    private protocolContext: DummyProtocolContextSyncOrAsync,
+    private prefix?: string
   ) {}
 }
