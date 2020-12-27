@@ -483,10 +483,16 @@ describe('getServer() Tests', () => {
     unknown,
     [props: HandlerProps<DummyProtocolContextSync, unknown>]
   >;
+  let protocolServerFactorySpy: jest.SpyInstance<unknown, unknown[]>;
 
   beforeEach(() => {
     serverlessly = new Serverlessly({ protocol }).pipe(middlewares[0]);
     getHandlerSpy = jest.spyOn(serverlessly, 'getHandler');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    protocolServerFactorySpy = jest.spyOn<any, string>(
+      serverlessly,
+      'protocolServerFactory'
+    );
   });
 
   afterEach(() => {
@@ -494,15 +500,25 @@ describe('getServer() Tests', () => {
   });
 
   test('getServer() calls getHandler() once', () => {
-    serverlessly.getServer();
+    serverlessly.getServer('');
     expect(getHandlerSpy).toBeCalledTimes(1);
   });
 
   test('getServer() calls getHandler() with correct arguments', () => {
-    serverlessly.getServer();
+    serverlessly.getServer('');
     expect(getHandlerSpy).toBeCalledWith({
-      platformAdapter: serverlessly['protocolServerFactory'],
+      platformAdapter: expect.any(Function),
     });
+  });
+
+  test('getServer() calls protocolServerFatory() once', () => {
+    serverlessly.getServer('');
+    expect(protocolServerFactorySpy).toBeCalledTimes(1);
+  });
+
+  test('getServer() calls protocolServerFatory() with correct argument', () => {
+    serverlessly.getServer('Hulk Smash');
+    expect(protocolServerFactorySpy).toBeCalledWith('Hulk Smash');
   });
 });
 

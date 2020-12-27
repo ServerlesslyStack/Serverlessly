@@ -125,7 +125,7 @@ describe('ServerlesslySync', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -198,7 +198,7 @@ describe('Serverlessly001', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -271,7 +271,7 @@ describe('Serverlessly002', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -340,7 +340,7 @@ describe('Serverlessly101', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -409,7 +409,7 @@ describe('Serverlessly102', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -478,7 +478,7 @@ describe('ServerlesslyAsync', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -547,7 +547,7 @@ describe('Serverlessly112', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -616,7 +616,7 @@ describe('Serverlessly121', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -685,7 +685,7 @@ describe('Serverlessly122', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -746,7 +746,7 @@ describe('Serverlessly201', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -807,7 +807,7 @@ describe('Serverlessly202', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -868,7 +868,7 @@ describe('Serverlessly211', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -929,7 +929,7 @@ describe('Serverlessly212', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -990,7 +990,7 @@ describe('Serverlessly221', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 
@@ -1051,7 +1051,7 @@ describe('ServerlesslySyncOrAsync', () => {
 
   test('getServer() returns correct type', () => {
     expect<DummyProtocolServerSyncOrAsync>(
-      serverlessly.pipe(dummyMiddleware).getServer()
+      serverlessly.pipe(dummyMiddleware).getServer('')
     );
   });
 

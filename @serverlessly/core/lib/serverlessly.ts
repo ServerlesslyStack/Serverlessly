@@ -20,7 +20,9 @@ export interface Serverlessly<
   TProtocolContext,
   TMiddleware,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TProtocolServer
+  TProtocolServer,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TProtocolServerProps = undefined
 > {
   emit(event: ServerlesslyLogsEvent, log: string): boolean;
   emit(event: ServerlesslyErrorEvent, error: Error): boolean;
@@ -104,16 +106,23 @@ export interface Serverlessly<
  * @typeParam TProtocolContext - Generic type of `Protocol Context`
  * @typeParam TMiddleware - Generic type of middlewares supported by `Serverlessly` instance
  * @typeParam TProtocolServer - Generic type of `Protocol Server` capable of running a `Serverlessly` microservice on self-managed infrastructure
+ * @typeParam TProtocolServerProps - Generic type of options used to configure `Protocol Server`
  */
 export interface ServerlesslyProps<
   TProtocolContext,
   TMiddleware,
-  TProtocolServer
+  TProtocolServer,
+  TProtocolServerProps = undefined
 > {
   /**
    * Serverlessly `Protocol` which represents a network protocol like `http`
    */
-  protocol: Protocol<TProtocolContext, TMiddleware, TProtocolServer>;
+  protocol: Protocol<
+    TProtocolContext,
+    TMiddleware,
+    TProtocolServer,
+    TProtocolServerProps
+  >;
   /**
    * `Middleware Engine` which processes middlewares
    *
@@ -139,11 +148,13 @@ export interface HandlerProps<TProtocolContext, TPlatformHandler> {
  * @typeParam TProtocolContext - Generic type of `Protocol Context`
  * @typeParam TMiddleware - Generic type of middlewares supported by this microservice
  * @typeParam TProtocolServer - Generic type of `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
+ * @typeParam TProtocolServerProps - Generic type of options used to configure `Protocol Server`
  */
 export class Serverlessly<
   TProtocolContext,
   TMiddleware,
-  TProtocolServer
+  TProtocolServer,
+  TProtocolServerProps = undefined
 > extends EventEmitter {
   /**
    * `Middleware Engine` which processes middlewares
@@ -158,7 +169,8 @@ export class Serverlessly<
    */
   protected readonly protocolServerFactory: ProtocolServerFactory<
     TProtocolContext,
-    TProtocolServer
+    TProtocolServer,
+    TProtocolServerProps
   >;
 
   /**
@@ -183,7 +195,12 @@ export class Serverlessly<
    * ```
    */
   constructor(
-    props: ServerlesslyProps<TProtocolContext, TMiddleware, TProtocolServer>
+    props: ServerlesslyProps<
+      TProtocolContext,
+      TMiddleware,
+      TProtocolServer,
+      TProtocolServerProps
+    >
   ) {
     super();
     this.middlewareEngine =
@@ -264,6 +281,8 @@ export class Serverlessly<
 
   /**
    * Generates `Protocol Server` capable of running this Serverlessly microservice on self-managed infrastructure
+   * @typeParam TProtocolServerProps - Generic type of options used to configure `Protocol Server`
+   * @param props - Object used to configure `Protocol Server`
    * @returns `Protocol Server` e.g. HTTP Server, gRPC Server, Web Socket Server etc.
    *
    * @example
@@ -276,9 +295,9 @@ export class Serverlessly<
    *    });
    * ```
    */
-  getServer(): TProtocolServer {
+  getServer(props?: TProtocolServerProps): TProtocolServer {
     return this.getHandler({
-      platformAdapter: this.protocolServerFactory,
+      platformAdapter: this.protocolServerFactory(props),
     });
   }
 

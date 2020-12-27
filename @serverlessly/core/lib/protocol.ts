@@ -5,22 +5,29 @@ import { PlatformAdapter } from './platform-adapter';
  * Type alias for a `Protocol Server Factory`
  * @typeParam TProtocolContext - Generic type of `Protocol Context`
  * @typeParam TProtocolServer - Generic type of `Protocol Server`
+ * @typeParam TProtocolServerProps - Optional generic type of options used to configure `Protocol Server`
  */
 export type ProtocolServerFactory<
   TProtocolContext,
-  TProtocolServer
-> = PlatformAdapter<TProtocolContext, TProtocolServer>;
+  TProtocolServer,
+  TProtocolServerProps = undefined
+> = (
+  serverOptions?: TProtocolServerProps
+) => PlatformAdapter<TProtocolContext, TProtocolServer>;
 
 /**
- * Interface for a Serverlessly `Protocol`
+ * Represents a Serverlessly `Protocol`
  * @typeParam TProtocolContext - Generic type of `Protocol Context`
  * @typeParam TMiddleware - Generic type of middlewares supported by this `Protocol`
  * @typeParam TProtocolServer - Generic type of `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
- *
- * @remarks
- * A new Serverlessly `Protocol` needs to implement this interface
+ * @typeParam TProtocolServerProps - Optional generic type of options used to configure `Protocol Server`
  */
-export interface Protocol<TProtocolContext, TMiddleware, TProtocolServer> {
+export class Protocol<
+  TProtocolContext,
+  TMiddleware,
+  TProtocolServer,
+  TProtocolServerProps = undefined
+> {
   /**
    * name of the `Protocol`
    */
@@ -32,7 +39,37 @@ export interface Protocol<TProtocolContext, TMiddleware, TProtocolServer> {
   /**
    * `Protocol Server Factory` which can create `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
    */
-  serverFactory: ProtocolServerFactory<TProtocolContext, TProtocolServer>;
+  serverFactory: ProtocolServerFactory<
+    TProtocolContext,
+    TProtocolServer,
+    TProtocolServerProps
+  >;
+
+  /**
+   * Creates a new Serverlessly `Protocol`
+   * @param props - Options used to initialize `Protocol` class
+   *
+   * @example
+   * ```ts
+   * new Protocol({
+   *   name: 'MyCustomProtocol',
+   *   middlewareEngine: myMiddlewareEngine,
+   *   serverFactory: myServerFactory,
+   * });
+   * ```
+   */
+  constructor(
+    props: Protocol<
+      TProtocolContext,
+      TMiddleware,
+      TProtocolServer,
+      TProtocolServerProps
+    >
+  ) {
+    this.name = props.name;
+    this.middlewareEngine = props.middlewareEngine;
+    this.serverFactory = props.serverFactory;
+  }
 }
 
 /**
