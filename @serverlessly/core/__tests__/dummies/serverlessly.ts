@@ -22,149 +22,176 @@ import {
 export type ServerlesslySync = Serverlessly<
   DummyProtocolContextSync,
   DummyMiddlewareSync,
-  DummyProtocolServerSync
+  DummyProtocolServerSync,
+  string
 >;
 export type Serverlessly001 = Serverlessly<
   DummyProtocolContextSync,
   DummyMiddlewareSync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type Serverlessly002 = Serverlessly<
   DummyProtocolContextSync,
   DummyMiddlewareSync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type Serverlessly010 = Serverlessly<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 // An Impossibility!!!
 // export type Serverlessly011 = Serverlessly<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerAsync
+//   DummyProtocolServerAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type Serverlessly012 = Serverlessly<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSyncOrAsync
+//   DummyProtocolServerSyncOrAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type Serverlessly020 = Serverlessly<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 // An Impossibility!!!
 // export type Serverlessly021 = Serverlessly<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerAsync
+//   DummyProtocolServerAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type Serverlessly022 = Serverlessly<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSyncOrAsync
+//   DummyProtocolServerSyncOrAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type Serverlessly100 = Serverlessly<
 //   DummyProtocolContextAsync,
 //   DummyMiddlewareSync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type Serverlessly101 = Serverlessly<
   DummyProtocolContextAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type Serverlessly102 = Serverlessly<
   DummyProtocolContextAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type Serverlessly110 = Serverlessly<
 //   DummyProtocolContextAsync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 //111
 export type ServerlesslyAsync = Serverlessly<
   DummyProtocolContextAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type Serverlessly112 = Serverlessly<
   DummyProtocolContextAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type Serverlessly120 = Serverlessly<
 //   DummyProtocolContextAsync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type Serverlessly121 = Serverlessly<
   DummyProtocolContextAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type Serverlessly122 = Serverlessly<
   DummyProtocolContextAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type Serverlessly200 = Serverlessly<
 //   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareSync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type Serverlessly201 = Serverlessly<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type Serverlessly202 = Serverlessly<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type Serverlessly210 = Serverlessly<
 //   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type Serverlessly211 = Serverlessly<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type Serverlessly212 = Serverlessly<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type Serverlessly220 = Serverlessly<
 //   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type Serverlessly221 = Serverlessly<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 // 222
 export type ServerlesslySyncOrAsync = Serverlessly<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;

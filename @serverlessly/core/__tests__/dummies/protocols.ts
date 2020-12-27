@@ -54,151 +54,178 @@ import {
 export type DummyProtocolSync = Protocol<
   DummyProtocolContextSync,
   DummyMiddlewareSync,
-  DummyProtocolServerSync
+  DummyProtocolServerSync,
+  string
 >;
 export type DummyProtocol001 = Protocol<
   DummyProtocolContextSync,
   DummyMiddlewareSync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type DummyProtocol002 = Protocol<
   DummyProtocolContextSync,
   DummyMiddlewareSync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type DummyProtocol010 = Protocol<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 // An Impossibility!!!
 // export type DummyProtocol011 = Protocol<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerAsync
+//   DummyProtocolServerAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type DummyProtocol012 = Protocol<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSyncOrAsync
+//   DummyProtocolServerSyncOrAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type DummyProtocol020 = Protocol<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 // An Impossibility!!!
 // export type DummyProtocol021 = Protocol<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerAsync
+//   DummyProtocolServerAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type DummyProtocol022 = Protocol<
 //   DummyProtocolContextSync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSyncOrAsync
+//   DummyProtocolServerSyncOrAsync,
+//   string
 // >;
 // An Impossibility!!!
 // export type DummyProtocol100 = Protocol<
 //   DummyProtocolContextAsync,
 //   DummyMiddlewareSync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type DummyProtocol101 = Protocol<
   DummyProtocolContextAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type DummyProtocol102 = Protocol<
   DummyProtocolContextAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type DummyProtocol110 = Protocol<
 //   DummyProtocolContextAsync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 //111
 export type DummyProtocolAsync = Protocol<
   DummyProtocolContextAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type DummyProtocol112 = Protocol<
   DummyProtocolContextAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type DummyProtocol120 = Protocol<
 //   DummyProtocolContextAsync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type DummyProtocol121 = Protocol<
   DummyProtocolContextAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type DummyProtocol122 = Protocol<
   DummyProtocolContextAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type DummyProtocol200 = Protocol<
 //   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareSync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type DummyProtocol201 = Protocol<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type DummyProtocol202 = Protocol<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type DummyProtocol210 = Protocol<
 //   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type DummyProtocol211 = Protocol<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 export type DummyProtocol212 = Protocol<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 // An Impossibility!!!
 // export type DummyProtocol220 = Protocol<
 //   DummyProtocolContextSyncOrAsync,
 //   DummyMiddlewareSyncOrAsync,
-//   DummyProtocolServerSync
+//   DummyProtocolServerSync,
+//   string
 // >;
 export type DummyProtocol221 = Protocol<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerAsync
+  DummyProtocolServerAsync,
+  string
 >;
 // 222
 export type DummyProtocolSyncOrAsync = Protocol<
   DummyProtocolContextSyncOrAsync,
   DummyMiddlewareSyncOrAsync,
-  DummyProtocolServerSyncOrAsync
+  DummyProtocolServerSyncOrAsync,
+  string
 >;
 
 // Concrete Dummy Protocols
