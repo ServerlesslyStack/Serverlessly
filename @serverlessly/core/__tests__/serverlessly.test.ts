@@ -44,28 +44,23 @@ describe('Serverlessly Constructor Tests', () => {
     expect(new Serverlessly({ protocol, middlewareEngine })).toBeTruthy();
   });
 
-  test('Serverlessly instance has correct middlewareEngine value', () => {
-    const serverlessly1 = new Serverlessly({ protocol });
-    const serverlessly2 = new Serverlessly({
-      protocol,
-      middlewareEngine,
+  test('Serverlessly instance has correct middlewareEngine & protocolServerFactory values when it is initialized without Middleware Engine', () => {
+    expect(new Serverlessly({ protocol })).toMatchObject({
+      middlewareEngine: protocol.middlewareEngine,
+      protocolServerFactory: protocol.serverFactory,
     });
-
-    expect(serverlessly1['middlewareEngine']).toBe(protocol.middlewareEngine);
-
-    expect(serverlessly2['middlewareEngine']).toBe(middlewareEngine);
   });
 
-  test('Serverlessly instance has correct protocolServerFactory value', () => {
-    const serverlessly1 = new Serverlessly({ protocol });
-    const serverlessly2 = new Serverlessly({
-      protocol,
+  test('Serverlessly instance has correct middlewareEngine & protocolServerFactory values when it is initialized with Middleware Engine', () => {
+    expect(
+      new Serverlessly({
+        protocol,
+        middlewareEngine,
+      })
+    ).toMatchObject({
       middlewareEngine,
+      protocolServerFactory: protocol.serverFactory,
     });
-
-    expect(serverlessly1['protocolServerFactory']).toBe(protocol.serverFactory);
-
-    expect(serverlessly2['protocolServerFactory']).toBe(protocol.serverFactory);
   });
 
   test('Serverlessly emits log once after initialization', async () => {
