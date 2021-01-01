@@ -5,3 +5,6 @@ coverage
 .cache
 
 .DS_Store
+
+@serverlessly/**/*.js
+@serverlessly/**/*.d.ts

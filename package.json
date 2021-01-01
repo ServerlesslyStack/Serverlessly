@@ -15,7 +15,9 @@
     "test-ci": "jest --collectCoverage=false --ci --passWithNoTests",
     "coverage-ci": "jest --coverageThreshold={} --ci --passWithNoTests",
     "pre-commit": "lint-staged -q -c ./configs/lint-staged.config.js",
-    "postinstall": "is-ci || (husky install && yarn fix-husky)"
+    "postinstall": "is-ci || (husky install && yarn fix-husky)",
+    "build": "tsc -p ./tsconfig.build.json",
+    "clean-build": "del '@serverlessly/**/*.js' '@serverlessly/**/*.d.ts' '!**/node_modules'"
   },
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
@@ -27,6 +29,7 @@
     "@types/node": "^14.14.17",
     "@typescript-eslint/eslint-plugin": "^4.11.1",
     "@typescript-eslint/parser": "^4.11.1",
+    "del-cli": "^3.0.1",
     "eslint": "^7.16.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-tsdoc": "^0.2.7",
