@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs';
 import * as path from 'path';
-import { safeDump } from 'js-yaml';
+import { dump } from 'js-yaml';
 import loadCommitlintConfig from '@commitlint/load';
 
 loadCommitlintConfig(
@@ -11,7 +11,7 @@ loadCommitlintConfig(
 ).then((config) => {
   writeFileSync(
     path.join(__dirname, '../.github/labeler.yml'),
-    safeDump(
+    dump(
       config.rules['scope-enum']?.[2]?.reduce(
         (acc, scope) => ({
           ...acc,
