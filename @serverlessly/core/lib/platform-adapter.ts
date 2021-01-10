@@ -6,6 +6,7 @@
  * @remarks
  * A new `Platform Adapter` needs to adhere to this type alias
  */
-export type PlatformAdapter<TProtocolContext, TPlatformHandler> = (
-  protocolContext: TProtocolContext
-) => TPlatformHandler;
+export type PlatformAdapter<
+  TProtocolContext extends Function,
+  TPlatformHandler
+> = (protocolContext: TProtocolContext) => TPlatformHandler;

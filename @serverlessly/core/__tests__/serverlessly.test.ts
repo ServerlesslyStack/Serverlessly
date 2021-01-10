@@ -218,15 +218,15 @@ describe('getHandler() Tests', () => {
   let getProtocolContextSpy: jest.SpyInstance<
     unknown,
     [
-      middlewareEngine: MiddlewareEngine<unknown, unknown>,
+      middlewareEngine: MiddlewareEngine<Function, unknown>,
       middlewares: unknown[]
     ]
   >;
   let getPlatformHandlerSpy: jest.SpyInstance<
     unknown,
     [
-      platformAdapter: PlatformAdapter<unknown, unknown>,
-      hydratedProtocol: unknown
+      platformAdapter: PlatformAdapter<Function, unknown>,
+      protocolContext: Function
     ]
   >;
 

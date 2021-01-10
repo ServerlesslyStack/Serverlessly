@@ -17,7 +17,7 @@ type ServerlesslyMiddlewaresEvent = 'MIDDLEWARES' | 'NEW_MIDDLEWARES';
 
 export interface Serverlessly<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TProtocolContext,
+  TProtocolContext extends Function,
   TMiddleware,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TProtocolServer,
@@ -109,7 +109,7 @@ export interface Serverlessly<
  * @typeParam TProtocolServerProps - Generic type of options used to configure `Protocol Server`
  */
 export interface ServerlesslyProps<
-  TProtocolContext,
+  TProtocolContext extends Function,
   TMiddleware,
   TProtocolServer,
   TProtocolServerProps = undefined
@@ -136,7 +136,10 @@ export interface ServerlesslyProps<
  * @typeParam TProtocolContext - Generic type of `Protocol Context`
  * @typeParam TPlatformHandler - Generic type of handler returned by `getHandler()`
  */
-export interface HandlerProps<TProtocolContext, TPlatformHandler> {
+export interface HandlerProps<
+  TProtocolContext extends Function,
+  TPlatformHandler
+> {
   /**
    * `Platform Adapter` which makes it possible to run a Serverlessly microservice on a specific platform like `AWS Lambda`
    */
@@ -151,7 +154,7 @@ export interface HandlerProps<TProtocolContext, TPlatformHandler> {
  * @typeParam TProtocolServerProps - Generic type of options used to configure `Protocol Server`
  */
 export class Serverlessly<
-  TProtocolContext,
+  TProtocolContext extends Function,
   TMiddleware,
   TProtocolServer,
   TProtocolServerProps = undefined
@@ -308,7 +311,7 @@ export class Serverlessly<
   getProtocolContext(): TProtocolContext {
     return this.getHandler({
       platformAdapter: <ProtocolServerAdapter<TProtocolContext>>(
-        protocolServerAdapter
+        (<unknown>protocolServerAdapter)
       ),
     });
   }

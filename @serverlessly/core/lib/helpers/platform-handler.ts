@@ -1,6 +1,9 @@
 import { PlatformAdapter } from '../platform-adapter';
 
-export function getPlatformHandler<TProtocolContext, TPlatformHandler>(
+export function getPlatformHandler<
+  TProtocolContext extends Function,
+  TPlatformHandler
+>(
   platformAdapter: PlatformAdapter<TProtocolContext, TPlatformHandler>,
   protocolContext: TProtocolContext
 ): TPlatformHandler {

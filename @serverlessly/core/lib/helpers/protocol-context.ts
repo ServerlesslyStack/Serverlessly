@@ -1,6 +1,9 @@
 import { MiddlewareEngine } from '../middleware-engine';
 
-export function getProtocolContext<TProtocolContext, TMiddleware>(
+export function getProtocolContext<
+  TProtocolContext extends Function,
+  TMiddleware
+>(
   middlewareEngine: MiddlewareEngine<TProtocolContext, TMiddleware>,
   middlewares: TMiddleware[]
 ): TProtocolContext {
