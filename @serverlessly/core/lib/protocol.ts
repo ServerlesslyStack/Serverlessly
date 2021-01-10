@@ -8,7 +8,7 @@ import { PlatformAdapter } from './platform-adapter';
  * @typeParam TProtocolServerProps - Optional generic type of options used to configure `Protocol Server`
  */
 export type ProtocolServerFactory<
-  TProtocolContext,
+  TProtocolContext extends Function,
   TProtocolServer,
   TProtocolServerProps = undefined
 > = (
@@ -23,7 +23,7 @@ export type ProtocolServerFactory<
  * @typeParam TProtocolServerProps - Optional generic type of options used to configure `Protocol Server`
  */
 export class Protocol<
-  TProtocolContext,
+  TProtocolContext extends Function,
   TMiddleware,
   TProtocolServer,
   TProtocolServerProps = undefined
@@ -80,16 +80,15 @@ export class Protocol<
  * An implementation is already available with `protocolServerAdapter`.
  * No need to implement this unless the user has not control over custom `Protocol Server` for which so code needs to be injected.
  */
-export type ProtocolServerAdapter<TProtocolContext> = PlatformAdapter<
-  TProtocolContext,
-  TProtocolContext
->;
+export type ProtocolServerAdapter<
+  TProtocolContext extends Function
+> = PlatformAdapter<TProtocolContext, TProtocolContext>;
 
 /**
  * `Platform Adapter` meant for `Protocol Server` platform
  * @param protocolContext - `Protocol Context`
  * @returns `Protocol Context` without any change
  */
-export const protocolServerAdapter: ProtocolServerAdapter<unknown> = (
+export const protocolServerAdapter: ProtocolServerAdapter<Function> = (
   protocolContext
 ) => protocolContext;

@@ -16,6 +16,7 @@ const eslintConfig = {
       ],
       rules: {
         'tsdoc/syntax': 'warn',
+        '@typescript-eslint/ban-types': 'off',
       },
     },
   ],

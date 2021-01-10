@@ -6,6 +6,6 @@
  * @remarks
  * A new `Middleware Engine` needs to adhere to this type alias
  */
-export type MiddlewareEngine<TProtocolContext, TMiddleware> = (
+export type MiddlewareEngine<TProtocolContext extends Function, TMiddleware> = (
   middlewares: TMiddleware[]
 ) => TProtocolContext;
