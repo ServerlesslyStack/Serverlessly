@@ -191,20 +191,20 @@ pull_request_rules: [
     },
     # Code Quality
     {
-      name: Add code-quality-issue label,
+      name: Add maintainability-issue label,
       conditions:
         [
           check-failure=codeclimate,
           -closed,
           -merged,
-          label!=code-quality-issue,
+          label!=maintainability-issue,
         ],
-      actions: { label: { add: [code-quality-issue] } },
+      actions: { label: { add: [maintainability-issue] } },
     },
     {
-      name: Remove code-quality-issue label,
-      conditions: [check-success=codeclimate, label=code-quality-issue],
-      actions: { label: { remove: [code-quality-issue] } },
+      name: Remove maintainability-issue label,
+      conditions: [check-success=codeclimate, label=maintainability-issue],
+      actions: { label: { remove: [maintainability-issue] } },
     },
     # Test Coverage
     {
@@ -631,7 +631,7 @@ pull_request_rules: [
       name: Remove merge-in-progress label,
       conditions:
         [
-          label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden|untested-code|test-failed|security-issue|code-quality-issue|code-style-issue|license-issue),
+          label~=(pr-title-issue|merge-conflict|revision-needed|blocked|sensitive|forbidden|untested-code|test-failed|security-issue|maintainability-issue|code-style-issue|license-issue),
           label=merge-in-progress,
         ],
       actions: { label: { remove: [merge-in-progress] } },
