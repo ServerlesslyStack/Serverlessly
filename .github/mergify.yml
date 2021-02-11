@@ -39,20 +39,21 @@ pull_request_rules: [
       conditions:
         [
           author!=@ServerlesslyStack/core,
-          files~=(^.github/|^scripts/|^configs/),
+          files~=(^.github/|^scripts/|^configs/|^tools/),
         ],
       actions:
         {
           comment:
             {
-              message: 'You modified a sensitive file in `.github`, `scripts` or `configs` directory which is not allowed. Please, request the changes through [Discussions](https://github.com/ServerlesslyStack/Serverlessly/discussions).',
+              message: 'You modified a sensitive file in `.github`, `scripts`, `tools` or `configs` directory which is not allowed. Please, request the changes through [Discussions](https://github.com/ServerlesslyStack/Serverlessly/discussions).',
             },
           label: { add: [sensitive] },
         },
     },
     {
       name: Unblock PR if it removes modified sensitive file,
-      conditions: [-files~=(^.github/|^scripts/|^configs/), label=sensitive],
+      conditions:
+        [-files~=(^.github/|^scripts/|^configs/|^tools/), label=sensitive],
       actions: { label: { remove: [sensitive] } },
     },
     {
