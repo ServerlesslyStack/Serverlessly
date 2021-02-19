@@ -1,4 +1,6 @@
 '@serverlessly/core':
   - '@serverlessly/core/**/*'
+'@serverlessly/protocol-http':
+  - '@serverlessly/protocol-http/**/*'
 '@serverlessly/protocol-tcp':
   - '@serverlessly/protocol-tcp/**/*'
