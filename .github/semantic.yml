@@ -16,4 +16,5 @@ types:
   - test
 scopes:
   - core
+  - protocol-http
   - protocol-tcp
