@@ -12,7 +12,6 @@ const eslintConfig = {
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
         'prettier',
-        'prettier/@typescript-eslint',
       ],
       rules: {
         'tsdoc/syntax': 'warn',
