@@ -1,0 +1,12 @@
+{
+  version: '2',
+  exclude_patterns:
+    [
+      '**/node_modules/',
+      'coverage',
+      'configs/',
+      'scripts/',
+      'tools/',
+      '**/__tests__/',
+    ],
+}
