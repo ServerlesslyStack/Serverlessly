@@ -3,9 +3,9 @@
   on: [push, pull_request],
   jobs:
     {
-      coverage:
+      codecov:
         {
-          name: Collect Coverage,
+          name: Codecov,
           runs-on: ubuntu-latest,
           steps:
             [
@@ -14,6 +14,22 @@
               { run: yarn install-ci },
               { run: yarn coverage-ci },
               { run: 'bash <(curl -s https://codecov.io/bash)' },
+            ],
+        },
+      codacy:
+        {
+          name: Codacy,
+          runs-on: ubuntu-latest,
+          steps:
+            [
+              { uses: actions/checkout@v2 },
+              { uses: actions/setup-node@v1, with: { node-version: 14 } },
+              { run: yarn install-ci },
+              { run: yarn coverage-ci },
+              {
+                uses: codacy/codacy-coverage-reporter-action@master,
+                with: { project-token: '${{ secrets.CODACY_PROJECT_TOKEN }}' },
+              },
             ],
         },
     },
