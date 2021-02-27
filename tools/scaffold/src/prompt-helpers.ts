@@ -65,20 +65,20 @@ export async function askName(): Promise<void> {
 
   if (
     lib.type === 'Middleware Engine' &&
-    !lib.name.startsWith('@serverlessly/me-')
+    !lib.name.startsWith('@serverlessly/engine-')
   ) {
     console.error(
-      'Middleware Engine package name must start with "@serverlessly/me-".'
+      'Middleware Engine package name must start with "@serverlessly/engine-".'
     );
     await askName();
   }
 
   if (
     lib.type === 'Platform Adapter' &&
-    !lib.name.startsWith('@serverlessly/pa-')
+    !lib.name.startsWith('@serverlessly/platform-')
   ) {
     console.error(
-      'Platform Adapter package name must start with "@serverlessly/pa-".'
+      'Platform Adapter package name must start with "@serverlessly/platform-".'
     );
     await askName();
   }
