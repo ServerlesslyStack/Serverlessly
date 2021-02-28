@@ -38,7 +38,7 @@ Step-through debugging a microservice involves bringing FaaS execution environme
 
 A Serverlessly `Protocol` represents a network protocol like `http`, `ws` etc. It glues together multiple parts of Serverlessly system.
 
-Official npm packages for protocols: `@serverlessly/protocol-*`
+Official npm packages for protocols: `@serverlessly/protocol-*`  
 Third-party npm packages for protocols: `serverlessly-protocol-*`
 
 ### Protocol Context
@@ -55,7 +55,7 @@ A `Middleware Engine` is responsible to process middlewares. Here, by processing
 
 **Note:** In the entire lifespan of a Serverlessly microservice, a `Middleware Engine` runs only once (only during cold boot on FaaS), so it isn't a performance overhead.
 
-Official npm packages for middleware engines: `@serverlessly/[protocol]-mengine-*`
+Official npm packages for middleware engines: `@serverlessly/[protocol]-mengine-*`  
 Third-party npm packages for middleware engines: `serverlessly-[protocol]-mengine-*`
 
 ### Platform
@@ -68,7 +68,7 @@ A `Platform Adapter` makes it possible to run a Serverlessly microservice on a s
 
 **Note:** In the entire lifespan of a Serverlessly microservice, a `Platform Adapter` runs only once (on FaaS, only during cold boot), so it isn't a performance overhead.
 
-Official npm packages for platform adapters: `@serverlessly/[protocol]-platform-*`
+Official npm packages for platform adapters: `@serverlessly/[protocol]-platform-*`  
 Third-party npm packages for platform adapters: `serverlessly-[protocol]-platform-*`
 
 ---
