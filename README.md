@@ -10,6 +10,69 @@ Serverlessly allows you to write _vendor-neutral_ cloud-native microservices whi
 
 ---
 
+## Philosophy
+
+What problem does Serverlessly solve?
+
+### Microservice Portability & No Vendor Lock-In
+
+When you write microservices for AWS Lambda, you get locked into the system because the same code can't run on Azure Functions or self-managed infrastructure. With Serverlessly, you can move around by just switching `Platform Adapter`.
+
+In contrast, Containers (which seem to solve same problem) are heavy on cold boot (AWS Fargate cold boot time can go upto 20 seconds) & keeping containers warm in CaaS or Kubernetes cluster can be costly. Besides, Serverlessly microservices can also be deployed in Containers if the need arises.
+
+### Multi-Cloud
+
+Your CI/CD pipeline can change `Platform Adapter` on the fly to make you truly go multi-cloud (for increasing service availability, decreasing latency etc). Serverlessly will offer tooling to make that easy.
+
+### Middleware Ecosystem
+
+Middlewares may look outdated, but they aren't. Currently, countless mankind hours get wasted solving same common problems because big cloud providers didn't bother to think about building middleware ecosystems for their FaaS offerings. For example, if you look at security middleware [Helmet](https://www.npmjs.com/package/helmet) for Express, it's useful even to microservices.
+
+### Easy Debugging
+
+Step-through debugging a microservice involves bringing FaaS execution environment locally which isn't always piece of cake. With Serverlessly, you can change to a `Platform Adapter` for self-managed infrastructure & debug your code [normally](https://nodejs.org/en/docs/guides/debugging-getting-started/) (For Typescript, if you want to avoid compilation, you can run `node --inspect-brk -r ts-node/register your-microservice.ts` or `node --inspect -r ts-node/register your-microservice.ts` before [attaching your favorite debugging client](https://code.visualstudio.com/docs/nodejs/nodejs-debugging#_attaching-to-nodejs) over inspector protocol as usual).
+
+## Glossary of Serverlessly Terms
+
+### Protocol
+
+A Serverlessly `Protocol` represents a network protocol like `http`, `ws` etc. It glues together multiple parts of Serverlessly system.
+
+Official npm packages for protocols: `@serverlessly/protocol-*`
+Third-party npm packages for protocols: `serverlessly-protocol-*`
+
+### Protocol Context
+
+Internal state of a Serverlessly `Protocol`.
+
+### Middleware
+
+Modular consumer code which can be shared across organization or the world.
+
+### Middleware Engine
+
+A `Middleware Engine` is responsible to process middlewares. Here, by processing, it's meant that it initializes the middlewares (if required), glue them together, creates a new `Protocol Context` using the glued code (which has consumer code) & register the `Protocol Context` to Serverlessly `Protocol`.
+
+**Note:** In the entire lifespan of a Serverlessly microservice, a `Middleware Engine` runs only once (only during cold boot on FaaS), so it isn't a performance overhead.
+
+Official npm packages for middleware engines: `@serverlessly/[protocol]-mengine-*`
+Third-party npm packages for middleware engines: `serverlessly-[protocol]-mengine-*`
+
+### Platform
+
+A `Platform` represents a specific execution environment. AWS Lambda, Azure Function, Self-managed Node.js environment etc are all examples of `Platform`.
+
+### Platform Adapter
+
+A `Platform Adapter` makes it possible to run a Serverlessly microservice on a specific platform like `AWS Lambda`, `Azure Functions` etc. It does the translation from the `Platform` to Serverlessly `Protocol Context` & vice versa.
+
+**Note:** In the entire lifespan of a Serverlessly microservice, a `Platform Adapter` runs only once (on FaaS, only during cold boot), so it isn't a performance overhead.
+
+Official npm packages for platform adapters: `@serverlessly/[protocol]-platform-*`
+Third-party npm packages for platform adapters: `serverlessly-[protocol]-platform-*`
+
+---
+
 [![FOSSA Detailed License Scan Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FServerlesslyStack%2FServerlessly.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FServerlesslyStack%2FServerlessly/)
 
 [![Code Climate](https://img.shields.io/codeclimate/maintainability/ServerlesslyStack/Serverlessly?label=Code%20Climate&logo=code%20climate&style=for-the-badge)](https://codeclimate.com/github/ServerlesslyStack/Serverlessly/maintainability) [![Codecov](https://img.shields.io/codecov/c/github/ServerlesslyStack/Serverlessly?label=Codecov&logo=Codecov&style=for-the-badge&token=XO1C4ATYMM)](https://codecov.io/gh/ServerlesslyStack/Serverlessly) [![Codacy](https://img.shields.io/codacy/grade/114b4d920d6243d9b6c9d560cd53f7c0?label=Codacy&logo=codacy&style=for-the-badge)](https://www.codacy.com/gh/ServerlesslyStack/Serverlessly/dashboard)

@@ -1,94 +1,50 @@
-import { MiddlewareEngine } from './middleware-engine';
-import { PlatformAdapter } from './platform-adapter';
-
 /**
- * Type alias for a `Protocol Server Factory`
- * @typeParam TProtocolContext - Generic type of `Protocol Context`
- * @typeParam TProtocolServer - Generic type of `Protocol Server`
- * @typeParam TProtocolServerProps - Optional generic type of options used to configure `Protocol Server`
+ * Represents state of a Serverlessly `Protocol`
  */
-export type ProtocolServerFactory<
-  TProtocolContext extends Function,
-  TProtocolServer,
-  TProtocolServerProps = undefined
-> = (
-  serverOptions?: TProtocolServerProps
-) => PlatformAdapter<TProtocolContext, TProtocolServer>;
-
-/**
- * Represents a Serverlessly `Protocol`
- * @typeParam TProtocolContext - Generic type of `Protocol Context`
- * @typeParam TMiddleware - Generic type of middlewares supported by this `Protocol`
- * @typeParam TProtocolServer - Generic type of `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
- * @typeParam TProtocolServerProps - Optional generic type of options used to configure `Protocol Server`
- */
-export class Protocol<
-  TProtocolContext extends Function,
-  TMiddleware,
-  TProtocolServer,
-  TProtocolServerProps = undefined
-> {
+export abstract class ProtocolContext {
   /**
-   * name of the `Protocol`
+   * A function which is called on each microservice invocation (or, server connection)
    */
-  name: string;
-  /**
-   * `Middleware Engine` available with Serverlessly `Protocol`
-   */
-  middlewareEngine: MiddlewareEngine<TProtocolContext, TMiddleware>;
-  /**
-   * `Protocol Server Factory` which can create `Protocol Server` capable of running a Serverlessly microservice on self-managed infrastructure
-   */
-  serverFactory: ProtocolServerFactory<
-    TProtocolContext,
-    TProtocolServer,
-    TProtocolServerProps
-  >;
-
-  /**
-   * Creates a new Serverlessly `Protocol`
-   * @param props - Options used to initialize `Protocol` class
-   *
-   * @example
-   * ```ts
-   * new Protocol({
-   *   name: 'MyCustomProtocol',
-   *   middlewareEngine: myMiddlewareEngine,
-   *   serverFactory: myServerFactory,
-   * });
-   * ```
-   */
-  constructor(
-    props: Protocol<
-      TProtocolContext,
-      TMiddleware,
-      TProtocolServer,
-      TProtocolServerProps
-    >
-  ) {
-    this.name = props.name;
-    this.middlewareEngine = props.middlewareEngine;
-    this.serverFactory = props.serverFactory;
-  }
+  abstract readonly listener: Function;
 }
 
 /**
- * Type alias for a `Platform Adapter` meant for `Protocol Server` platform
- * @typeParam TProtocolContext - Generic type of `Protocol Context`
+ * Serverlessly `Protocol` which represents a network protocol like `http`
+ * @typeParam TProtocolContext - State of Serverlessly `Protocol`
  *
  * @remarks
- * An implementation is already available with `protocolServerAdapter`.
- * No need to implement this unless the user has not control over custom `Protocol Server` for which so code needs to be injected.
+ * A new `Protocol` needs to extend this abstract class
  */
-export type ProtocolServerAdapter<
-  TProtocolContext extends Function
-> = PlatformAdapter<TProtocolContext, TProtocolContext>;
+export abstract class Protocol<TProtocolContext extends ProtocolContext> {
+  /**
+   * Descriptive name of this Serverlessly `Protocol`
+   *
+   * @remarks
+   * This name is used during debug logging & can be used by external tools for other purposes like search indexing
+   */
+  abstract readonly name: string;
 
-/**
- * `Platform Adapter` meant for `Protocol Server` platform
- * @param protocolContext - `Protocol Context`
- * @returns `Protocol Context` without any change
- */
-export const protocolServerAdapter: ProtocolServerAdapter<Function> = (
-  protocolContext
-) => protocolContext;
+  /**
+   * State of this Serverlessly `Protocol`
+   */
+  protected context?: TProtocolContext;
+
+  /**
+   * Sets `Context` of Serverlessly `Protocol`
+   * @param context - New state of Serverlessly `Protocol`
+   *
+   * @remarks
+   * `Middleware Engines` are required to invoke it
+   */
+  public setContext(context: TProtocolContext): void {
+    this.context = context;
+  }
+
+  /**
+   * Generates listener with consumer code
+   *
+   * @remarks
+   * `Platform Adapters` are required to invoke it
+   */
+  abstract getListener(...args: unknown[]): unknown;
+}

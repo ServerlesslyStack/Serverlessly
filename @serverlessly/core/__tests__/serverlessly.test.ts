@@ -1,103 +1,50 @@
 /* eslint-disable no-empty */
-import {
-  HandlerProps,
-  MiddlewareEngine,
-  PlatformAdapter,
-  Serverlessly,
-} from '@serverlessly/core';
+import { Serverlessly } from '@serverlessly/core';
 import * as validateMiddleware from '../lib/helpers/validate-middlewares';
-import * as protocolContext from '../lib/helpers/protocol-context';
-import * as platformHandler from '../lib/helpers/platform-handler';
-import { dummyMiddlewareEngineSync } from './dummies/middleware-engines';
-import { dummyMiddlewaresSync } from './dummies/middlewares';
-import { dummyPlatformAdapterSync } from './dummies/platform-adapters';
-import { dummyProtocolSync } from './dummies/protocols';
-import { ServerlesslySync } from './dummies/serverlessly';
-import { DummyProtocolContextSync } from './dummies/protocol-contexts';
-import { protocolServerAdapter } from '../lib/protocol';
+import { DummyProtocolSyncOrAsync } from './dummies/protocols';
+import {
+  dummyMiddlewaresSyncOrAsync,
+  DummyMiddlewareSyncOrAsync,
+} from './dummies/middlewares';
+import {
+  DummyMiddlewareEngineSyncOrAsync,
+  FaultyMiddlewareEngineSyncOrAsync,
+} from './dummies/middleware-engines';
+import {
+  DummyPlatformAdapterSyncOrAsync,
+  FaultyPlatformAdapterSyncOrAsync,
+} from './dummies/platform-adapters';
+import { ServerlesslySyncOrAsync } from './dummies/serverlessly';
+import { DummyPlatformHandlerSyncOrAsync } from './dummies/platform-handlers';
 
-const protocol = dummyProtocolSync;
-const middlewareEngine = dummyMiddlewareEngineSync;
-const middlewares = dummyMiddlewaresSync;
-const platformAdapter = dummyPlatformAdapterSync;
-
-function finishEventLoop() {
-  return new Promise((resolve) => setImmediate(resolve));
-}
+const protocol = new DummyProtocolSyncOrAsync();
+const middlewares = dummyMiddlewaresSyncOrAsync;
+const middlewareEngine = new DummyMiddlewareEngineSyncOrAsync();
+const platformAdapter = new DummyPlatformAdapterSyncOrAsync();
 
 describe('Serverlessly Constructor Tests', () => {
-  let logsListener: jest.Mock;
-
-  beforeEach(() => {
-    logsListener = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('Serverlessly is successfully initialized without Middleware Engine', () => {
-    expect(new Serverlessly({ protocol })).toBeTruthy();
-  });
-
-  test('Serverlessly is successfully initialized with Middleware Engine', () => {
+  test('Serverlessly is successfully initialized', () => {
     expect(new Serverlessly({ protocol, middlewareEngine })).toBeTruthy();
   });
 
-  test('Serverlessly instance has correct middlewareEngine & protocolServerFactory values when it is initialized without Middleware Engine', () => {
-    expect(new Serverlessly({ protocol })).toMatchObject({
-      middlewareEngine: protocol.middlewareEngine,
-      protocolServerFactory: protocol.serverFactory,
-    });
-  });
-
-  test('Serverlessly instance has correct middlewareEngine & protocolServerFactory values when it is initialized with Middleware Engine', () => {
+  test('Serverlessly instance has correct protocol & middlewareEngine values', () => {
     expect(
       new Serverlessly({
         protocol,
         middlewareEngine,
       })
     ).toMatchObject({
+      protocol,
       middlewareEngine,
-      protocolServerFactory: protocol.serverFactory,
     });
-  });
-
-  test('Serverlessly emits log once after initialization', async () => {
-    new Serverlessly({ protocol }).on('LOG', logsListener);
-    await finishEventLoop();
-    expect(logsListener).toBeCalled();
-    expect(logsListener).toBeCalledTimes(1);
-  });
-
-  test('Serverlessly emits correct log after initialization', async () => {
-    new Serverlessly({ protocol }).on('LOG', logsListener);
-    await finishEventLoop();
-    expect(logsListener).toBeCalledWith(
-      `Serverlessly microservice initialized successfully with ${protocol.name} protocol.`
-    );
   });
 });
 
 describe('pipe() Tests', () => {
-  let serverlessly: ServerlesslySync;
-
-  let logsListener: jest.Mock;
-  let newMiddlewaresListener: jest.Mock;
-  let middlewaresListener: jest.Mock;
+  let serverlessly: ServerlesslySyncOrAsync;
 
   beforeEach(() => {
-    serverlessly = new Serverlessly({
-      protocol,
-    });
-
-    logsListener = jest.fn();
-    newMiddlewaresListener = jest.fn();
-    middlewaresListener = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
+    serverlessly = new Serverlessly({ protocol, middlewareEngine });
   });
 
   test('pipe() returns Serverlessly instance', () => {
@@ -126,124 +73,34 @@ describe('pipe() Tests', () => {
         .pipe(middlewares[2], middlewares[3])['middlewares']
     ).toStrictEqual(middlewares);
   });
-
-  describe('Events emitted by pipe()', () => {
-    test('Events are emitted', () => {
-      serverlessly
-        .on('LOG', logsListener)
-        .on('NEW_MIDDLEWARES', newMiddlewaresListener)
-        .on('MIDDLEWARES', middlewaresListener)
-        .pipe(middlewares[0]);
-      expect(logsListener).toBeCalled();
-      expect(newMiddlewaresListener).toBeCalled();
-      expect(middlewaresListener).toBeCalled();
-    });
-
-    test('events are emitted n times for n pipe methods', () => {
-      const app = serverlessly
-        .on('LOG', logsListener)
-        .on('NEW_MIDDLEWARES', newMiddlewaresListener)
-        .on('MIDDLEWARES', middlewaresListener);
-      expect(logsListener).toBeCalledTimes(0);
-      expect(newMiddlewaresListener).toBeCalledTimes(0);
-      expect(middlewaresListener).toBeCalledTimes(0);
-
-      app.pipe(middlewares[0]).pipe(middlewares[1]);
-      expect(logsListener).toBeCalledTimes(2);
-      expect(newMiddlewaresListener).toBeCalledTimes(2);
-      expect(middlewaresListener).toBeCalledTimes(2);
-
-      app.pipe(middlewares[2]);
-      expect(logsListener).toBeCalledTimes(3);
-      expect(newMiddlewaresListener).toBeCalledTimes(3);
-      expect(middlewaresListener).toBeCalledTimes(3);
-
-      app.pipe(middlewares[3]).pipe(middlewares[0]);
-      expect(logsListener).toBeCalledTimes(5);
-      expect(newMiddlewaresListener).toBeCalledTimes(5);
-      expect(middlewaresListener).toBeCalledTimes(5);
-    });
-
-    test('correct events are emitted', () => {
-      const app = serverlessly
-        .on('LOG', logsListener)
-        .on('NEW_MIDDLEWARES', newMiddlewaresListener)
-        .on('MIDDLEWARES', middlewaresListener)
-        .pipe(middlewares[0], middlewares[1]);
-      expect(logsListener).toBeCalledWith(
-        'pipe: 2 middlewares registered (new global middlewares count: 2)'
-      );
-      expect(newMiddlewaresListener).toBeCalledWith([
-        middlewares[0],
-        middlewares[1],
-      ]);
-      expect(middlewaresListener).toBeCalledWith([
-        middlewares[0],
-        middlewares[1],
-      ]);
-
-      app.pipe(middlewares[2]);
-      expect(logsListener).lastCalledWith(
-        'pipe: 1 middleware registered (new global middlewares count: 3)'
-      );
-      expect(newMiddlewaresListener).lastCalledWith([middlewares[2]]);
-      expect(middlewaresListener).lastCalledWith([
-        middlewares[0],
-        middlewares[1],
-        middlewares[2],
-      ]);
-
-      app.pipe(middlewares[3]);
-      expect(logsListener).lastCalledWith(
-        'pipe: 1 middleware registered (new global middlewares count: 4)'
-      );
-      expect(newMiddlewaresListener).lastCalledWith([middlewares[3]]);
-      expect(middlewaresListener).lastCalledWith([
-        middlewares[0],
-        middlewares[1],
-        middlewares[2],
-        middlewares[3],
-      ]);
-    });
-  });
 });
 
 describe('getHandler() Tests', () => {
-  let serverlessly: ServerlesslySync;
-
-  let logsListener: jest.Mock;
-  let errorListener: jest.Mock;
+  let serverlessly: ServerlesslySyncOrAsync;
 
   let validateMiddlewareSpy: jest.SpyInstance<void, [middlewares: unknown[]]>;
-  let getProtocolContextSpy: jest.SpyInstance<
-    unknown,
+  let middlewareEngineSpy: jest.SpyInstance<
+    void,
     [
-      middlewareEngine: MiddlewareEngine<Function, unknown>,
-      middlewares: unknown[]
+      protocol: DummyProtocolSyncOrAsync,
+      middlewares: DummyMiddlewareSyncOrAsync[]
     ]
   >;
-  let getPlatformHandlerSpy: jest.SpyInstance<
-    unknown,
-    [
-      platformAdapter: PlatformAdapter<Function, unknown>,
-      protocolContext: Function
-    ]
+  let platformAdapterSpy: jest.SpyInstance<
+    DummyPlatformHandlerSyncOrAsync,
+    [protocol: DummyProtocolSyncOrAsync]
   >;
 
   beforeEach(() => {
-    serverlessly = new Serverlessly({
-      protocol,
-    });
-
-    logsListener = jest.fn();
-    errorListener = jest.fn();
+    serverlessly = new Serverlessly({ protocol, middlewareEngine });
 
     validateMiddlewareSpy = jest.spyOn(
       validateMiddleware,
       'validateMiddlewares'
     );
-    getProtocolContextSpy = jest.spyOn(protocolContext, 'getProtocolContext');
-    getPlatformHandlerSpy = jest.spyOn(platformHandler, 'getPlatformHandler');
+
+    middlewareEngineSpy = jest.spyOn(middlewareEngine, '_run');
+    platformAdapterSpy = jest.spyOn(platformAdapter, '_run');
   });
 
   afterEach(() => {
@@ -273,45 +130,21 @@ describe('getHandler() Tests', () => {
       }).toThrow();
     });
 
-    test('getHandler() throws correct error if no ERROR listener is attached', () => {
+    test('getHandler() throws correct error', () => {
       expect(() => {
         serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
       }).toThrow(
-        new Error(
-          'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
-        )
+        new Error(`Something went wrong.\n${new Error('Dummy Error')}`)
       );
     });
 
-    test('getHandler() throws & emits correct error if ERROR listener is attached', () => {
-      expect(() => {
-        serverlessly
-          .on('ERROR', errorListener)
-          .pipe(middlewares[0])
-          .getHandler({ platformAdapter });
-      }).toThrow(new Error());
-
-      expect(errorListener).toBeCalledWith(new Error('Dummy Error'));
-    });
-
-    test('getHandler() does not emit logs', () => {
-      try {
-        serverlessly
-          .pipe(middlewares[0])
-          .on('LOG', logsListener)
-          .getHandler({ platformAdapter });
-      } catch (error) {}
-
-      expect(logsListener).not.toBeCalled();
-    });
-
-    test('getHandler() does not call getProtocolContext() or getPlatformHandler()', () => {
+    test('getHandler() does not run middlewareEngine or platformAdapter', () => {
       try {
         serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
       } catch (error) {}
 
-      expect(getProtocolContextSpy).not.toBeCalled();
-      expect(getPlatformHandlerSpy).not.toBeCalled();
+      expect(middlewareEngineSpy).not.toBeCalled();
+      expect(platformAdapterSpy).not.toBeCalled();
     });
   });
 
@@ -322,41 +155,19 @@ describe('getHandler() Tests', () => {
       });
     });
 
-    test('getHandler() calls getProtocolContext() once', () => {
+    test('getHandler() runs middlewareEngine once', () => {
       serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
-      expect(getProtocolContextSpy).toBeCalledTimes(1);
+      expect(middlewareEngineSpy).toBeCalledTimes(1);
     });
 
-    test('getHandler() calls getProtocolContext() with correct argument', () => {
+    test('getHandler() runs middlewareEngine with correct argument', () => {
       serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
-      expect(getProtocolContextSpy).toBeCalledWith(middlewareEngine, [
-        middlewares[0],
-      ]);
+      expect(middlewareEngineSpy).toBeCalledWith(protocol, [middlewares[0]]);
     });
 
-    test('getHandler() emits logs once', () => {
-      serverlessly
-        .pipe(middlewares[0])
-        .on('LOG', logsListener)
-        .getHandler({ platformAdapter });
-
-      expect(logsListener).toBeCalledTimes(1);
-    });
-
-    test('getHandler() emits correct logs', () => {
-      const app = serverlessly.pipe(middlewares[0]);
-
-      app.on('LOG', logsListener).getHandler({ platformAdapter });
-      expect(logsListener).toBeCalledWith('getHandler: 1 middleware found');
-
-      app.pipe(middlewares[1]);
-      app.on('LOG', logsListener).getHandler({ platformAdapter });
-      expect(logsListener).lastCalledWith('getHandler: 2 middlewares found');
-    });
-
-    describe('if getProtocolContext() throws', () => {
+    describe('if middlewareEngine throws', () => {
       beforeEach(() => {
-        getProtocolContextSpy.mockImplementationOnce(() => {
+        middlewareEngineSpy.mockImplementationOnce(() => {
           throw new Error('Dummy Error');
         });
       });
@@ -367,56 +178,60 @@ describe('getHandler() Tests', () => {
         }).toThrow();
       });
 
-      test('getHandler() throws correct error if no ERROR listener is attached', () => {
+      test('getHandler() throws correct error', () => {
         expect(() => {
           serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
         }).toThrow(
+          new Error(`Something went wrong.\n${new Error('Dummy Error')}`)
+        );
+
+        expect(() => {
+          new Serverlessly({
+            protocol,
+            middlewareEngine: new FaultyMiddlewareEngineSyncOrAsync(),
+          })
+            .pipe(middlewares[0])
+            .getHandler({ platformAdapter });
+        }).toThrow(
           new Error(
-            'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+            `Something went wrong.\n${new Error(
+              `Faulty Middleware Engine\n${new RangeError(
+                'Invalid array length'
+              )}`
+            )}`
           )
         );
       });
 
-      test('getHandler() throws & emits correct error if ERROR listener is attached', () => {
-        expect(() => {
-          serverlessly
-            .on('ERROR', errorListener)
-            .pipe(middlewares[0])
-            .getHandler({ platformAdapter });
-        }).toThrow(new Error());
-
-        expect(errorListener).toBeCalledWith(new Error('Dummy Error'));
-      });
-
-      test('getHandler() does not call getPlatformHandler()', () => {
+      test('getHandler() does not run platformAdapter', () => {
         try {
           serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
         } catch (error) {}
 
-        expect(getPlatformHandlerSpy).not.toBeCalled();
+        expect(platformAdapterSpy).not.toBeCalled();
       });
     });
 
-    describe('if getProtocolContext() does not throw', () => {
+    describe('if middlewareEngine does not throw', () => {
       beforeEach(() => {
-        getProtocolContextSpy.mockImplementationOnce(() => {
+        middlewareEngineSpy.mockImplementationOnce(() => {
           return 'Foo';
         });
       });
 
-      test('getHandler() calls getPlatformHandler() once', () => {
+      test('getHandler() runs platformAdapter once', () => {
         serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
-        expect(getPlatformHandlerSpy).toBeCalledTimes(1);
+        expect(platformAdapterSpy).toBeCalledTimes(1);
       });
 
-      test('getHandler() calls getPlatformHandler() with correct argument', () => {
+      test('getHandler() runs platformAdapter with correct argument', () => {
         serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
-        expect(getPlatformHandlerSpy).toBeCalledWith(platformAdapter, 'Foo');
+        expect(platformAdapterSpy).toBeCalledWith(protocol);
       });
 
-      describe('if getPlatformHandler() throws', () => {
+      describe('if platformAdapter throws', () => {
         beforeEach(() => {
-          getPlatformHandlerSpy.mockImplementationOnce(() => {
+          platformAdapterSpy.mockImplementationOnce(() => {
             throw new Error('Dummy Error');
           });
         });
@@ -427,33 +242,33 @@ describe('getHandler() Tests', () => {
           }).toThrow();
         });
 
-        test('getHandler() throws correct error if no ERROR listener is attached', () => {
+        test('getHandler() throws correct error', () => {
           expect(() => {
             serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter });
           }).toThrow(
+            new Error(`Something went wrong.\n${new Error('Dummy Error')}`)
+          );
+
+          expect(() => {
+            serverlessly.pipe(middlewares[0]).getHandler({
+              platformAdapter: new FaultyPlatformAdapterSyncOrAsync(),
+            });
+          }).toThrow(
             new Error(
-              'Something went wrong. Listen to ERROR event to get detailed error & stack trace.'
+              `Something went wrong.\n${new Error(
+                `Faulty Platform Adapter\n${new RangeError(
+                  'Invalid array length'
+                )}`
+              )}`
             )
           );
         });
-
-        test('getHandler() throws & emits correct error if ERROR listener is attached', () => {
-          expect(() => {
-            serverlessly
-              .on('ERROR', errorListener)
-              .pipe(middlewares[0])
-              .getHandler({ platformAdapter });
-          }).toThrow(new Error());
-
-          expect(errorListener).toBeCalledWith(new Error('Dummy Error'));
-        });
       });
 
-      describe('if getPlatformHandler() does not throw', () => {
+      describe('if platformAdapter does not throw', () => {
+        const mockReturnHandler = () => 'Foo';
         beforeEach(() => {
-          getPlatformHandlerSpy.mockImplementationOnce(() => {
-            return 'Foo';
-          });
+          platformAdapterSpy.mockImplementationOnce(() => mockReturnHandler);
         });
 
         test('getHandler() does not throw', () => {
@@ -462,86 +277,12 @@ describe('getHandler() Tests', () => {
           }).not.toThrow();
         });
 
-        test('getHandler() returns the same value returned by getPlatformHandler()', () => {
+        test('getHandler() returns the same value returned by platformAdapter', () => {
           expect(
             serverlessly.pipe(middlewares[0]).getHandler({ platformAdapter })
-          ).toBe('Foo');
+          ).toBe(mockReturnHandler);
         });
       });
-    });
-  });
-});
-
-describe('getServer() Tests', () => {
-  let serverlessly: ServerlesslySync;
-  let getHandlerSpy: jest.SpyInstance<
-    unknown,
-    [props: HandlerProps<DummyProtocolContextSync, unknown>]
-  >;
-  let protocolServerFactorySpy: jest.SpyInstance<unknown, unknown[]>;
-
-  beforeEach(() => {
-    serverlessly = new Serverlessly({ protocol }).pipe(middlewares[0]);
-    getHandlerSpy = jest.spyOn(serverlessly, 'getHandler');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    protocolServerFactorySpy = jest.spyOn<any, string>(
-      serverlessly,
-      'protocolServerFactory'
-    );
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('getServer() calls getHandler() once', () => {
-    serverlessly.getServer('');
-    expect(getHandlerSpy).toBeCalledTimes(1);
-  });
-
-  test('getServer() calls getHandler() with correct arguments', () => {
-    serverlessly.getServer('');
-    expect(getHandlerSpy).toBeCalledWith({
-      platformAdapter: expect.any(Function),
-    });
-  });
-
-  test('getServer() calls protocolServerFatory() once', () => {
-    serverlessly.getServer('');
-    expect(protocolServerFactorySpy).toBeCalledTimes(1);
-  });
-
-  test('getServer() calls protocolServerFatory() with correct argument', () => {
-    serverlessly.getServer('Hulk Smash');
-    expect(protocolServerFactorySpy).toBeCalledWith('Hulk Smash');
-  });
-});
-
-describe('getProtocolContext() Tests', () => {
-  let serverlessly: ServerlesslySync;
-  let getHandlerSpy: jest.SpyInstance<
-    unknown,
-    [props: HandlerProps<DummyProtocolContextSync, unknown>]
-  >;
-
-  beforeEach(() => {
-    serverlessly = new Serverlessly({ protocol }).pipe(middlewares[0]);
-    getHandlerSpy = jest.spyOn(serverlessly, 'getHandler');
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  test('getProtocolContext() calls getHandler() once', () => {
-    serverlessly.getProtocolContext();
-    expect(getHandlerSpy).toBeCalledTimes(1);
-  });
-
-  test('getProtocolContext() calls getHandler() with correct arguments', () => {
-    serverlessly.getProtocolContext();
-    expect(getHandlerSpy).toBeCalledWith({
-      platformAdapter: protocolServerAdapter,
     });
   });
 });
