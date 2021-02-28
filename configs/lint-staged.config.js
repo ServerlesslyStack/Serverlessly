@@ -2,14 +2,14 @@ const mm = require('micromatch');
 const path = require('path');
 
 function format(files) {
-  if (!files.length) {
+  if (!Array.isArray(files) || !files.length) {
     return 'echo No Files to Format';
   }
   return `prettier --write ${files.join(' ')}`;
 }
 
 function lint(files) {
-  if (!files.length) {
+  if (!Array.isArray(files) || !files.length) {
     return 'echo No Files to Lint';
   }
   return `eslint ${files.join(' ')}`;
