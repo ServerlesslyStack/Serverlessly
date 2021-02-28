@@ -1,11 +1,11 @@
 {
-  name: Coverage,
-  on: [push, pull_request],
+  name: Codacy,
+  on: [push],
   jobs:
     {
-      codecov:
+      coverage:
         {
-          name: Codecov,
+          name: Collect Coverage,
           runs-on: ubuntu-latest,
           steps:
             [
@@ -13,7 +13,10 @@
               { uses: actions/setup-node@v1, with: { node-version: 14 } },
               { run: yarn install-ci },
               { run: yarn coverage-ci },
-              { run: 'bash <(curl -s https://codecov.io/bash)' },
+              {
+                uses: codacy/codacy-coverage-reporter-action@master,
+                with: { project-token: '${{ secrets.CODACY_PROJECT_TOKEN }}' },
+              },
             ],
         },
     },
