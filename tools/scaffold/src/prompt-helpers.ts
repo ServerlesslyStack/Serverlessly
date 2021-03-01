@@ -2,11 +2,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { prompt } from 'inquirer';
 
-import { lib, AllowedDir } from './state';
+import { serverlesslyPackage, Package } from './state';
+import { getPackageNamePrefix, getProtocols } from './helpers';
 
 export async function askDirectory(): Promise<void> {
-  lib.directory = (
-    await prompt<{ directory: AllowedDir }>({
+  serverlesslyPackage.directory = (
+    await prompt<Pick<Package, 'directory'>>({
       name: 'directory',
       message: 'Directory where you want to create this generic package:',
       type: 'list',
@@ -15,24 +16,40 @@ export async function askDirectory(): Promise<void> {
   ).directory;
 }
 
+export async function askProtocol(): Promise<void> {
+  serverlesslyPackage.protocol = (
+    await prompt<Pick<Package, 'protocol'>>({
+      name: 'protocol',
+      message: `Protocol for which you want to create ${serverlesslyPackage.type}`,
+      type: 'list',
+      choices: getProtocols(),
+    })
+  ).protocol;
+}
+
 export async function askName(): Promise<void> {
-  lib.name = (
-    await prompt<{ name: string }>({
+  const packageNamePrefix = getPackageNamePrefix();
+  const enteredName = (
+    await prompt<Pick<Package, 'name'>>({
       name: 'name',
-      message: `Name of the npm package:`,
+      message: `Name of the ${serverlesslyPackage.type} ('${packageNamePrefix}' will be automatically prefixed):`,
       type: 'input',
     })
   ).name;
 
-  if (!lib.name) {
+  serverlesslyPackage.name = packageNamePrefix + enteredName;
+
+  if (!enteredName) {
     console.error('Name must not be empty.');
     await askName();
   }
 
   if (
-    !lib.name.match('^(?:@[a-z0-9-*~][a-z0-9-*._~]*/)?[a-z0-9-~][a-z0-9-._~]*$')
+    !serverlesslyPackage.name.match(
+      '^(?:@[a-z0-9-*~][a-z0-9-*._~]*/)?[a-z0-9-~][a-z0-9-._~]*$'
+    )
   ) {
-    console.error('Name must be valid npm package name.');
+    console.error('Name must be valid string allowed in npm package name.');
     await askName();
   }
 
@@ -41,44 +58,14 @@ export async function askName(): Promise<void> {
       path.join(
         __dirname,
         '../../..',
-        lib.directory,
-        lib.name.replace('@serverlessly/', ''),
+        serverlesslyPackage.directory,
+        serverlesslyPackage.name.replace('@serverlessly/', ''),
         'package.json'
       )
     )
   ) {
     console.error(
-      `Package already exists in '${lib.directory}' directory. Please, enter a new name.`
-    );
-    await askName();
-  }
-
-  if (
-    lib.type === 'Protocol' &&
-    !lib.name.startsWith('@serverlessly/protocol-')
-  ) {
-    console.error(
-      'Protocol package name must start with "@serverlessly/protocol-".'
-    );
-    await askName();
-  }
-
-  if (
-    lib.type === 'Middleware Engine' &&
-    !lib.name.startsWith('@serverlessly/engine-')
-  ) {
-    console.error(
-      'Middleware Engine package name must start with "@serverlessly/engine-".'
-    );
-    await askName();
-  }
-
-  if (
-    lib.type === 'Platform Adapter' &&
-    !lib.name.startsWith('@serverlessly/platform-')
-  ) {
-    console.error(
-      'Platform Adapter package name must start with "@serverlessly/platform-".'
+      `Package already exists in '${serverlesslyPackage.directory}' directory. Please, enter a new name.`
     );
     await askName();
   }

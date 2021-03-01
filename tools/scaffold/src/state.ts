@@ -1,18 +1,19 @@
-export type LibType =
+type PackageType =
   | 'Protocol'
   | 'Middleware Engine'
   | 'Platform Adapter'
   | 'Generic Package';
 
-export type AllowedDir = '@serverlessly' | 'packages';
+type AllowedDir = '@serverlessly' | 'packages';
 
-interface Lib {
+export interface Package {
   name: string;
   directory: AllowedDir;
-  type: LibType;
+  type: PackageType;
+  protocol?: string;
 }
 
-export const lib: Lib = {
+export const serverlesslyPackage: Package = {
   name: '',
   directory: '@serverlessly',
   type: 'Generic Package',

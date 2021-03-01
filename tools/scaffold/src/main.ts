@@ -1,13 +1,13 @@
 import { prompt, Separator } from 'inquirer';
 
-import { lib, LibType } from './state';
-import { askDirectory, askName } from './prompt-helpers';
+import { serverlesslyPackage, Package } from './state';
+import { askDirectory, askName, askProtocol } from './prompt-helpers';
 import scaffold from './scaffold';
 
 export default async function main(): Promise<void> {
-  lib.type = (
-    await prompt<{ packageType: LibType }>({
-      name: 'packageType',
+  serverlesslyPackage.type = (
+    await prompt<Pick<Package, 'type'>>({
+      name: 'type',
       message: 'What are you scaffolding?',
       type: 'list',
       choices: [
@@ -18,10 +18,17 @@ export default async function main(): Promise<void> {
         'Generic Package',
       ],
     })
-  ).packageType;
+  ).type;
 
-  if (lib.type === 'Generic Package') {
+  if (serverlesslyPackage.type === 'Generic Package') {
     await askDirectory();
+  }
+
+  if (
+    serverlesslyPackage.type === 'Middleware Engine' ||
+    serverlesslyPackage.type === 'Platform Adapter'
+  ) {
+    await askProtocol();
   }
 
   await askName();
