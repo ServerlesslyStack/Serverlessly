@@ -9,5 +9,6 @@
       '.github/**',
       '.eslintrc.js',
       'jest.config.js',
+      '*.md',
     ],
 }
