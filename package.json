@@ -43,7 +43,7 @@
     "js-yaml": "^4.0.0",
     "lerna": "^4.0.0",
     "lint-staged": "^10.5.4",
-    "micromatch": "^4.0.2",
+    "micromatch": "^4.0.4",
     "prettier": "2.2.1",
     "shelljs": "^0.8.4",
     "ts-jest": "^26.5.4",
