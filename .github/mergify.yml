@@ -252,22 +252,12 @@ pull_request_rules: [
     {
       name: Add security-issue label,
       conditions:
-        [
-          check-failure~=(CodeQL Analysis|OSSAR Scan),
-          -closed,
-          -merged,
-          label!=security-issue,
-        ],
+        [check-failure~=(OSSAR Scan), -closed, -merged, label!=security-issue],
       actions: { label: { add: [security-issue] } },
     },
     {
       name: Remove security-issue label,
-      conditions:
-        [
-          check-success=CodeQL Analysis,
-          check-success=OSSAR Scan,
-          label=security-issue,
-        ],
+      conditions: [check-success=OSSAR Scan, label=security-issue],
       actions: { label: { remove: [security-issue] } },
     },
     # License
@@ -349,7 +339,6 @@ pull_request_rules: [
           check-success=Test on windows-latest with node.js v10,
           check-success=Test on windows-latest with node.js v12,
           check-success=Test on windows-latest with node.js v14,
-          check-success=CodeQL Analysis,
           check-success=OSSAR Scan,
           check-success=License Compliance,
           -closed,
@@ -378,7 +367,6 @@ pull_request_rules: [
           check-success=Test on windows-latest with node.js v10,
           check-success=Test on windows-latest with node.js v12,
           check-success=Test on windows-latest with node.js v14,
-          check-success=CodeQL Analysis,
           check-success=OSSAR Scan,
           check-success=License Compliance,
           -closed,
@@ -407,7 +395,6 @@ pull_request_rules: [
           check-success=Test on windows-latest with node.js v10,
           check-success=Test on windows-latest with node.js v12,
           check-success=Test on windows-latest with node.js v14,
-          check-success=CodeQL Analysis,
           check-success=OSSAR Scan,
           check-success=License Compliance,
           -closed,
@@ -539,11 +526,6 @@ pull_request_rules: [
       actions: { label: { remove: [ready-to-merge] } },
     },
     {
-      name: Remove ready-to-merge label when CodeQL Analysis check status goes to pending or failure state,
-      conditions: [check-success!=CodeQL Analysis, label=ready-to-merge],
-      actions: { label: { remove: [ready-to-merge] } },
-    },
-    {
       name: Remove ready-to-merge label when OSSAR Scan check status goes to pending or failure state,
       conditions: [check-success!=OSSAR Scan, label=ready-to-merge],
       actions: { label: { remove: [ready-to-merge] } },
@@ -658,7 +640,6 @@ pull_request_rules: [
           check-success=Test on windows-latest with node.js v10,
           check-success=Test on windows-latest with node.js v12,
           check-success=Test on windows-latest with node.js v14,
-          check-success=CodeQL Analysis,
           check-success=OSSAR Scan,
           check-success=License Compliance,
           -closed,
@@ -688,7 +669,6 @@ pull_request_rules: [
           check-success=Test on windows-latest with node.js v10,
           check-success=Test on windows-latest with node.js v12,
           check-success=Test on windows-latest with node.js v14,
-          check-success=CodeQL Analysis,
           check-success=OSSAR Scan,
           check-success=License Compliance,
           -closed,
@@ -718,7 +698,6 @@ pull_request_rules: [
           check-success=Test on windows-latest with node.js v10,
           check-success=Test on windows-latest with node.js v12,
           check-success=Test on windows-latest with node.js v14,
-          check-success=CodeQL Analysis,
           check-success=OSSAR Scan,
           check-success=License Compliance,
           -closed,
