@@ -31,7 +31,7 @@
     "@types/node": "^15.0.2",
     "@types/shelljs": "^0.8.8",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
-    "@typescript-eslint/parser": "^4.21.0",
+    "@typescript-eslint/parser": "^4.22.0",
     "del-cli": "^3.0.1",
     "eslint": "^7.23.0",
     "eslint-config-prettier": "^8.2.0",
