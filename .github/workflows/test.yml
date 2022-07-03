@@ -10,7 +10,7 @@
               matrix:
                 {
                   os: [ubuntu-latest, macos-latest, windows-latest],
-                  node: [10, 12, 14],
+                  node: [12, 14, 16],
                 },
             },
           name: 'Test on ${{ matrix.os }} with node.js v${{ matrix.node }}',
